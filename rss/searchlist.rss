@@ -1,0 +1,93 @@
+﻿ 
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<script>
+	totalSize = 0;
+	titleArray = null;
+	get_key = getEnv("Set_key");
+	downrss = getEnv("downrss");
+	load_dl = loadXMLFile(downrss + "search.php?pinyin="+urlencode(get_key));
+	cancelIdle();
+	if (load_dl != null)
+	{
+		totalSize = getXMLElementCount("keylist", "key");
+		if (totalSize &gt; 0)
+		{
+			count = 0;
+			while(1)
+			{
+				titleArray  = pushBackStringArray(titleArray, getXMLAttribute("keylist", "key", count,"value"));
+				count += 1;
+				if (count &gt;= totalSize) break;
+			}
+		}
+	}
+	setFocusItemIndex(0);
+</script>
+
+<mediaDisplay name=threePartsView
+	viewAreaXPC=27.8
+	viewAreaYPC=28.2
+	viewAreaWidthPC=37.3
+	viewAreaHeightPC=40
+	itemBackgroundColor=128:128:192
+	backgroundColor=128:128:192
+	rollItems=no
+	fontSize=15
+	itemXPC=77
+	itemYPC=72
+	itemHeightPC=14
+	itemWidthPC=94
+	itemPerPage=7
+	showHeader=no
+	drawItemBorder=no
+	showDefaultInfo=no>
+	<itemDisplay>
+	<text offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 fontSize=16>
+		<backgroundColor>
+			<script>
+				status = getDrawingItemState();
+				if (status == "focus") "0:0:120"; else "128:128:192";
+			</script>
+		</backgroundColor>
+	<script>getStringArrayAt(titleArray, -1);</script>
+	</text>
+	</itemDisplay>
+<onUserInput>
+ret = "false";
+playid = getFocusItemIndex();
+input = currentUserInput();
+if (input == "video_stop" || input == "return" || input == "display" || input == "option_green")
+{
+	ret = "return";
+}
+else if (input == "left" || input == "pageup")
+{
+	playid = minus(playid,8);
+	if (playid &lt; 0) {playid=0;}
+	setFocusItemIndex(playid);
+	redrawDisplay();
+	ret = "true";
+}
+else if (input == "right" || input == "pagedown")
+{
+	playid = add(playid,8);
+	if (playid &gt; minus(totalSize,1)) playid=minus(totalSize,1);
+	setFocusItemIndex(playid);
+	redrawDisplay();
+	ret = "true";
+}
+else if (input == "video_play" || input == "enter")
+{
+	retstr = getStringArrayAt(titleArray, playid);
+	setReturnString(retstr);
+	ret = "return";
+}
+ret;
+</onUserInput>
+</mediaDisplay>
+<channel>
+<itemSize>
+<script>totalSize;</script>
+</itemSize>
+</channel>
+</rss>

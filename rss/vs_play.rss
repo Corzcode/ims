@@ -1,0 +1,862 @@
+﻿<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<script>
+	tempdir = "/usr/local/etc/dvdplayer/vst_";
+	favdir = "/usr/local/etc/dvdplayer/myfav_";
+	
+	uipath = getEnv("uipath");
+	downrss = getEnv("downrss");
+	tempdir = uipath;
+	favdir = uipath + "fav";
+	
+	if (UI_ID == null)
+	{
+		UI_ID = getEnv("BGUI_ID");
+		if (UI_ID == null) UI_ID = "";
+	}
+</script>
+<script>
+	/* 脚本开始，设置播放器默认变量 脚本由编写：zjjtv在2012/5/14重新编写，去掉图片UI，全部字体颜色代替 */
+	StoragePath = getStoragePath("tmp");
+	cacheUrlpath = StoragePath + "cache_url.xml";
+
+	readplayArray = getEnv("readplay");
+	playTotal = getStringArrayAt(readplayArray, 0);
+	playName = getStringArrayAt(readplayArray, 1);
+	playFavimg = getStringArrayAt(readplayArray, 2);
+	playFavurl = getStringArrayAt(readplayArray, 3);
+	playFavmd5 = getStringArrayAt(readplayArray, 4);
+	playType = getStringArrayAt(readplayArray, 5);
+	playNextUrl = getStringArrayAt(readplayArray, 6);
+	PlayOpen = getStringArrayAt(readplayArray, 7);
+	Seek_Fs = getStringArrayAt(readplayArray, 8);
+
+	if (Seek_Fs == "start") NetSpeed = null; else NetSpeed = getNetSpeed();
+
+	setEnv("IMS_MODE", "mytv");
+	if (NetSpeed != null) Gitv_setAlpha(200); else setAlpha(200);
+
+	jsnum = "";
+
+	bufPoolCount = 2;
+	bufPoolUnit = 131072;
+	bufPoolSize = bufPoolUnit * bufPoolCount;
+
+	re_load = 1;
+	info_int = 0;
+	loadingIdx = 1;
+	infoDisplay = "info";
+
+	SeekTime = 0;
+	enterTime = 0;
+	totalTime = 0;
+	playdwTime = 0;
+	executeScript("init_data");
+	executeScript("loadFav");
+	if (getEnv("ErrTs") != null) unsetEnv("ErrTs");
+	seek_path = tempdir + "vs_seek.rss";
+	if (readStringFromFile(seek_path) == null) dldUrl2File(downrss + "../rss/vs_seek.rss", seek_path);
+	tz_playlist = tempdir + "vs_playlist.rss";
+	if (readStringFromFile(tz_playlist) == null) dldUrl2File(downrss + "../rss/vs_playlist.rss", tz_playlist);
+</script>
+
+<init_data>
+	/* 初始化播放列表 */
+	count = 0;
+	ErrorNum = 0;
+	playXubo = 0;
+	totalSize = 0;
+	NameArray = null;
+	LinkArray = null;
+	playLinkArray = getEnv("videoPlayLink");
+	playNameArray = getEnv("videoPlayTitle");
+	while (getStringArrayAt(playLinkArray, count) != null)
+	{
+		if (playTotal &lt; 0) playXubo = 1;
+		play_Link = getStringArrayAt(playLinkArray, count);
+		play_Name = getStringArrayAt(playNameArray, count);
+		if (play_Link != "xubo")
+		{
+			LinkArray = pushBackStringArray(LinkArray, play_Link);
+			NameArray = pushBackStringArray(NameArray, play_Name);
+			totalSize += 1;
+		}
+		count += 1;
+	}
+	if (totalSize &gt; 1)
+	{
+		templaylist = StoragePath + "playlist.dat";
+		deletefile(templaylist);
+		writeStringToFile(templaylist, NameArray);
+	}
+</init_data>
+
+<loadFav>
+	/* 续播功能 */
+	playFav = 0;
+	fav1 = favdir + "fav1.dat";
+	fav2 = favdir + "fav2.dat";
+	fav3 = favdir + "fav3.dat";
+	fav4 = favdir + "fav4.dat";
+	fav5 = favdir + "fav5.dat";
+	fav6 = favdir + "fav6.dat";
+	fav7 = favdir + "fav7.dat";
+	fav1Array = readStringFromFile(fav1);
+	fav2Array = readStringFromFile(fav2);
+	fav3Array = readStringFromFile(fav3);
+	fav4Array = readStringFromFile(fav4);
+	fav5Array = readStringFromFile(fav5);
+	fav6Array = readStringFromFile(fav6);
+	fav7Array = readStringFromFile(fav7);
+	if (playXubo &gt; 0)
+	{
+		favSize = 0;
+		while (getStringArrayAt(fav4Array, favSize) != null &amp;&amp; getStringArrayAt(fav7Array, favSize) != null)
+		{
+			if (getStringArrayAt(fav4Array, favSize) == playFavmd5)
+			{
+				playTotal = getStringArrayAt(fav5Array, favSize);
+				SectionNum = getStringArrayAt(fav6Array, favSize);
+				playdwTime = getStringArrayAt(fav7Array, favSize);
+				break;
+			}
+			favSize += 1;
+		}
+	}
+</loadFav>
+
+<getURL>
+	/* 先判断是否载入下一集，然后在载入这集的视频播放地址 */
+	if (re_load == 1)
+	{
+		re_load = 0;
+		urlSize = 1;
+		SeekTime = 0;
+		stopVideo = 0;
+		if (playTotal &gt; minus(totalSize,1)) playTotal = minus(totalSize,1);
+		playPath = getStringArrayAt(LinkArray, playTotal);
+		if (playType == "loadlist" &amp;&amp; playNextUrl != null &amp;&amp; playNextUrl != "null")
+		{
+			Cachemd5Url = getEnv("Cachemd5Url");
+			if (PlayOpen == "Replay") ExitStopPlay = 0; else ExitStopPlay = 1;
+			if (PlayOpen == null || PlayOpen == "null" || PlayOpen == "Replay") PlayOpen = "";
+			dlloadUrl =   playPath + PlayOpen;
+			Chkmd5Url = md5(dlloadUrl, 32);
+			if (readStringFromFile(cacheUrlpath) != null &amp;&amp; Chkmd5Url == Cachemd5Url) dlloadUrl = cacheUrlpath;
+			dlFile = loadXMLFile(dlloadUrl);
+			if (Chkmd5Url != Cachemd5Url)
+			{
+				setEnv("Cachemd5Url", Chkmd5Url);
+				copyFile("/tmp/cached/tmp.rss", cacheUrlpath);
+			}
+			cancelIdle();
+			if (dlFile != null)
+			{
+				count = 0;
+				totalTime = 0;
+				urlArray = null;
+				durArray = null;
+				errts = getXMLText("data", "errts");
+				resload = getXMLText("data", "load");
+				request = getXMLText("data", "request");
+				urlSize = getXMLElementCount("data", "url");
+				if (errts != null)
+				{
+					startVideo = 0;
+					setRefreshTime(-1);
+					setEnv("ErrTs", errts);
+					postMessage("return");
+				}
+				else if(urlSize &gt; 0)
+				{
+					while (1)
+					{
+						totalDur = getXMLAttribute("data", "url", count, "dur");
+						urlArray = pushBackStringArray(urlArray, getXMLAttribute("data", "url", count, "link"));
+						if (totalDur != null)
+						{
+							/* 把每段时间保存为数组 */
+							totalDur = totalDur / 1000;
+							totalTime = add(totalTime, totalDur);
+							durArray = pushBackStringArray(durArray, totalDur);
+						}
+						count += 1;
+						/* 蓝莓 print("urlArray = ", urlArray);*/
+						if (count &gt;= urlSize) break;
+					}
+				}
+			}
+			if (resload != null) resload = getURL(resload);
+		}
+		else
+		{
+			totalTime = 0;
+			urlArray = null;
+			urlArray = pushBackStringArray(urlArray, playPath);
+		}
+	}
+	/* 取当前设定的段数实际播放地址 */
+	playPath = getStringArrayAt(urlArray , SectionNum);
+	/* 首先先判断播放是否为多段视频，如果是再判断是否支持多段拼接功能，然后在把多段视频设置为拼接播放 */
+	if (NetSpeed != null &amp;&amp; urlArray != null &amp;&amp; durArray != null &amp;&amp; urlSize &gt; 1)
+	{
+		playPath = StoragePath + "play.m3u";
+		deletefile(playPath);
+		Gitv_UnInitPlayBack();
+		Gitv_InitPlayBack(urlSize, durArray);
+		writeStringToFile(playPath, urlArray);
+		urlSize = 1;
+		stopVideo = 1;
+	}
+	/* 自动获取总时间 */
+	if (stopVideo == 0 &amp;&amp; SectionNum &gt; 0 &amp;&amp; urlSize &gt; 1 &amp;&amp; durArray != null) executeScript("takeTime");
+	if (request == "post")
+	{
+		PostFile = getStoragePath("tmp") + "Posturl.dat";
+		dldUrl2File(  urlEncode(getURL(playPath))+"-"+urlEncode(playPath), PostFile);
+		Posturl = loadXMLFile(PostFile);
+		if (Posturl != null) playPath = getXMLAttribute("data", "url", 0, "link");
+	}
+	/* 停止播放 */
+	playItemURL(-1, 1);
+	if (stopVideo == 1) Gitv_stopVideo();
+	print("playPath = ", playPath);
+</getURL>
+
+<takeTime>
+	/* 自动计算总时间 */
+	count = 0;
+	durTime = 0;
+	while (1)
+	{
+		t_dur = getStringArrayAt(durArray, count);
+		if (t_dur != null) durTime = add(durTime, t_dur);
+		count += 1;
+		if (count &gt;= SectionNum) break;
+	}
+</takeTime>
+
+<onEnter>
+	/* 初始化 */
+	startVideo = 1;
+	pauseVideo = -1;
+	if (playTotal == null) playTotal = 0;
+	if (SectionNum == null) SectionNum = 0;
+	if (playFav == 0) setRefreshTime(1);
+	redrawDisplay();
+</onEnter>
+
+<onExit>
+	/* 退出销毁 */
+	unsetEnv("list_true");
+	unsetEnv("IMS_MODE");
+	if (ExitStopPlay == 1)
+	{
+		writeStringToFile(tempdir + "favmusic_lock.dat", playTotal);
+		if (stopVideo == 1) Gitv_stopVideo();
+		playItemURL(-1, 1);
+	}
+	setRefreshTime(-1);
+</onExit>
+
+<ErrorExit>
+	/* 出错大于3次直接自动退出 */
+	ErrorNum += 1;
+	if (playTotal &gt; 1 &amp;&amp; ErrorNum &lt;= 3)
+	{
+		re_load = 1;
+		SectionNum = 0;
+		playdwTime = 0;
+		startVideo = 1;
+		playTotal = add(playTotal, 1);
+	}
+	else
+	{
+		startVideo = 0;
+		setRefreshTime(-1);
+		setEnv("ErrTs", "加载数据过程中出错，播放失败！");
+		postMessage("return");
+	}
+</ErrorExit>
+
+<onRefresh>
+	/* 出错返回信息 */
+	if (getErrorCode() != 0) executeScript("ErrorExit");
+	/* 设定每秒刷新时间 */
+	if (onRefreshTime == null)
+	{
+		onRefreshTime = 500;
+		setRefreshTime(onRefreshTime);
+	}
+	if (startVideo == 1)
+	{
+		/* 设置一个播放 */
+		executeScript("getURL");
+		if (sprintf("%.7s", playPath) == "http://" || sprintf("%.7s", playPath) == "vosp://" || sprintf("%.5s", playPath) == "/tmp/")
+		{
+			if (findString(playPath,".mp3") == ".mp3") PlayTypeS = "music";
+			else if (findString(playPath,".wma") == ".wma") PlayTypeS = "music";
+			else if (findString(playPath,".wav") == ".wav") PlayTypeS = "music";
+			else if (findString(playPath,".ape") == ".ape") PlayTypeS = "music";
+			else if (findString(playPath,".acc") == ".acc") PlayTypeS = "music"; else PlayTypeS = null;
+			playItemURL(playPath, 0, bufPoolUnit, "mediaDisplay", "previewWindow");
+			ErrorNum = 0;
+			pauseVideo = 1;
+			startVideo = 2;
+			playNum = playTotal;
+			infoDisplay = "play";
+			executeScript("ExitFav");
+		}
+		else executeScript("ErrorExit");
+	}
+	else if (startVideo &gt; 1)
+	{
+		/* 播放状态获取 */
+		videoProgress = getPlaybackStatus();
+		playStatus = getStringArrayAt(videoProgress, 3);
+		/* 当前播放时间 */
+		playElapsed = getStringArrayAt(videoProgress, 0);
+		/* 加载缓冲进度 */
+		bufProgress = getCachedStreamDataSize(0, bufPoolSize);
+		bufferRatio = getStringArrayAt(bufProgress, 0);
+		/* 先判断是否分段，分段时间是否小于120秒，则取默认总时间 */
+		if (totalTime &lt; 120) totalTime = getStringArrayAt(videoProgress, 1);
+		/* 先判断固件是否支持分段拼接功能，然后再取相应播放时间 */
+		if (stopVideo == 1) playTime = Gitv_GetCurrentTime();
+		else
+		{
+			playTime = playElapsed;
+			if (Seek_Fs == "start") playTime = add(SeekTime, playTime);
+		}
+		/* 固件不支持分段拼接，而且播放的是多段视频，启用 自动计算总时间 */
+		if (stopVideo == 0 &amp;&amp; SectionNum &gt; 0 &amp;&amp; urlSize &gt; 1) playTime = add(playTime, durTime);
+		/* 设置默认定位最大和最小时间 */
+		if (totalTime &lt; 10)
+		{
+			step_left = 1;
+			step_right = 1;
+		}
+		else
+		{
+			step_left = 15;
+			step_right = 30;
+		}
+		play_JSM = getStringArrayAt(NameArray, playTotal);
+		/* 播放名称设置变量，方便调用 */
+		if (playName != null &amp;&amp; playName != "null")
+		{
+			if (play_JSM != null &amp;&amp; totalSize &gt; 1 &amp;&amp; play_JSM != "null") Title = playName + " - "+ play_JSM; else Title = playName;
+		}
+		else
+		{
+			if (play_JSM != null &amp;&amp; totalSize &gt; 1 &amp;&amp; play_JSM != "null") Title = play_JSM; else Title = getEnv("detail_name");
+		}
+		/* 状态显示 */
+		if (playStatus == 0)
+		{
+			/* 自动切换集数和段数 */
+			if (stopVideo == 1) playAllEnd = Gitv_playAllEnd(); else playAllEnd = "true";
+			if (add(SectionNum,1) &gt;= urlSize &amp;&amp; playAllEnd == "true")
+			{
+				if(add(playTotal,1) &gt;= totalSize)
+				{
+					if (ExitStopPlay == 1 || PlayTypeS == "music")
+					{
+						re_load = 1;
+						playTotal = 0;
+						SectionNum = 0;
+						playdwTime = 0;
+						startVideo = 1;
+					}
+					else
+					{
+						playfav = 1;
+						setRefreshTime(-1);
+						postMessage("return");
+					}
+				}
+				else
+				{
+					re_load = 1;
+					SectionNum = 0;
+					playdwTime = 0;
+					startVideo = 1;
+					playTotal = add(playTotal, 1);
+				}
+			}
+			else
+			{
+				if (urlSize &gt; 1)
+				{
+					playdwTime = 0;
+					startVideo = 1;
+					SectionNum = add(SectionNum,1);
+				}
+			}
+		}
+		else
+		{
+			/* 续播功能 */
+			if (playXubo == 1 &amp;&amp; bufferRatio &gt; 1) executeScript("playSeek");
+			else if (playSeek == 1 &amp;&amp; (bufferRatio &gt; 1 || Seek_Fs == "start"))
+			{
+				/* 定位 */
+				playSeek = 0;
+				if (PlayOpen != "tudou")
+				{
+					if (stopVideo == 1) Gitv_PlayAtTime(playdwTime);
+					else
+					{
+						if (Seek_Fs == "start")
+						{
+							playItemURL(-1, 1);
+							playItemURL(playPath+"?start="+playdwTime, 0, bufPoolUnit, "mediaDisplay", "previewWindow");
+						}
+						else playAtTime(playdwTime);
+					}
+				}
+				playdwTime = 0;
+			}
+			else if (info_int &gt; 0 &amp;&amp; enterTime == 0 &amp;&amp; pauseVideo != 2)
+			{
+				/* 信息条显示 */
+				info_int += 1;
+				if (info_int &gt; 20) info_int = 0;
+				if (infoDisplay == "info")
+				{
+					/* updatePlaybackProgress(videoProgress, "mediaDisplay", "Status", "Ad"); */
+					updatePlaybackProgress(videoProgress, "mediaDisplay", "Status", "progressBar");
+				}
+			}
+			else if (playTime &lt;= 0 || pauseVideo == 2 || infoDisplay == "seek" &amp;&amp; enterTime == 0)
+			{
+				/* 缓冲进度条显示 */
+				loadingIdx = add(loadingIdx, 1);
+				if (loadingIdx &gt; 5) loadingIdx = 1;
+				updatePlaybackProgress(bufProgress, "mediaDisplay", "Status", "bufferInfo");
+				if (playElapsed &gt; 1 &amp;&amp; bufferRatio &gt;= 60 &amp;&amp; pauseVideo == 1 || (minus(playTime, 3) &gt; playSeekTime &amp;&amp; bufferRatio &gt;= 10)) infoDisplay = "info";
+				if (infoDisplay != "pause" &amp;&amp; pauseVideo != 2)
+				{
+					/* updatePlaybackProgress(videoProgress, "mediaDisplay", "Status", "Ad"); */
+					updatePlaybackProgress(videoProgress, "mediaDisplay", "Status", "bufferBar");
+				}
+			}
+			else if (PlayTypeS == "music" &amp;&amp; info_int == 0 &amp;&amp; pauseVideo == 1 &amp;&amp; enterTime == 0)
+			{
+				if (infoDisplay != "music")
+				{
+					infoDisplay = "music";
+					redrawDisplay();
+				}
+				updatePlaybackProgress(videoProgress, "mediaDisplay", "Status", "bufferInfo");
+				updatePlaybackProgress(videoProgress, "mediaDisplay", "Status", "progressTime");
+			}
+		}
+	}
+	/* 数字选择播放集数 */
+	if (enterTime &gt; 0)
+	{
+		if (enterTime &gt; 6)
+		{
+			enterTime = 0;
+			if (totalSize &gt; 1)
+			{
+				if (jsnum != "") playTotal = minus(jsnum,1);
+				if (playTotal &lt; 0) playTotal = minus(totalSize,1);
+				if (playTotal &gt; minus(totalSize,1)) playTotal = 0;
+				if (playTotal != playNum)
+				{
+					re_load = 1;
+					playdwTime = 0;
+					startVideo = 1;
+					SectionNum = 0;
+				}
+				else playTotal = playNum;
+			}
+			jsnum = "";
+		}
+		else
+		{
+			enterTime += 1;
+			updatePlaybackProgress(videoProgress, "mediaDisplay", "Status", "progressPlay");
+		}
+	};
+</onRefresh>
+
+<mediaDisplay name=threePartsView idleImageXPC=0 idleImageYPC=0 idleImageWidthPC=0 idleImageHeightPC=0>
+	<idleImage>image/POPUP_LOADING_01.png</idleImage>
+	<idleImage>image/POPUP_LOADING_02.png</idleImage>
+	<idleImage>image/POPUP_LOADING_03.png</idleImage>
+	<idleImage>image/POPUP_LOADING_04.png</idleImage>
+	<idleImage>image/POPUP_LOADING_05.png</idleImage>
+	<idleImage>image/POPUP_LOADING_06.png</idleImage>
+	<idleImage>image/POPUP_LOADING_07.png</idleImage>
+	<idleImage>image/POPUP_LOADING_08.png</idleImage>
+	<previewWindow windowColor=-1:-1:-1 offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100></previewWindow>
+	<Status>
+		<bufferBar backgroundColor=68:68:68, offsetXPC=42, offsetYPC=40, widthPC=16, heightPC=10>
+			<text offsetXPC=0 offsetYPC=10 widthPC=100 heightPC=80 backgroundColor=-1:-1:-1 align=center fontSize=20 foregroundColor=255:255:255>
+				<script>
+					/* 缓冲加载 */
+					if (playStatus == 2) str_buffer = "缓冲 "+bufferRatio + "%"; else str_buffer = "加载中……";
+					str_buffer;
+				</script>
+			</text>
+		</bufferBar>
+
+		<Ad backgroundColor=88:88:88, offsetXPC=15, offsetYPC=15, widthPC=74, heightPC=18>
+			<text lines=2 offsetXPC=0 offsetYPC=10 widthPC=100 heightPC=95 backgroundColor=-1:-1:-1 align=center fontSize=24 foregroundColor=255:255:255>
+				<script>
+					/* 广告 */
+					str_buffer = "愚人节，玩真的！ ";
+					str_buffer;
+				</script>
+			</text>
+		</Ad>
+
+		<bufferInfo backgroundColor=-1:-1:-1, offsetXPC=5, offsetYPC=5.6, widthPC=98, heightPC=6>
+			<text offsetXPC=0 offsetYPC=0 widthPC=90 heightPC=100 backgroundColor=-1:-1:-1 fontSize=22 foregroundColor=255:200:0>
+				<script>
+					if (infoDisplay == "seek") str_top = "正在定位到：" + secondToString(dwplayTime);
+					else if (infoDisplay == "pause" &amp;&amp; pauseVideo == 2) str_top ="暂停中，已播放到："+ secondToString(playTime);
+					else if ((infoDisplay == "play" || PlayTypeS == "music") &amp;&amp; pauseVideo == 1)
+					{
+						if (playStatus == 2)
+						{
+							if (PlayTypeS == "music") str_top ="正在聆听：" + Title; else str_top ="正在播放：" + Title;
+						}
+						else str_top ="即将播放：" + Title;
+					}
+					str_top;
+				</script>
+			</text>
+		</bufferInfo>
+
+		<progressTime backgroundColor=-1:-1:-1, offsetXPC=5, offsetYPC=80, widthPC=30, heightPC=6>
+			<text offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 fontSize=22 align=right>
+				<script>
+					if (playTime &gt; 0)
+					{
+						str_total = secondToString(playTime) + "/" + secondToString(totalTime);
+					}
+					else str_total = "00:00:00/00:00:00";
+					str_total;
+				</script>
+			</text>
+		</progressTime>
+
+		<progressPlay backgroundColor=-1:-1:-1, offsetXPC=0, offsetYPC=6, widthPC=92, heightPC=50>
+			<text offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=40 backgroundColor=-1:-1:-1 align=right>
+				<fontSize><script>if (jsnum != "") "38"; else "22"; </script></fontSize>
+				<foregroundColor><script>if (jsnum != "") "180:44:40"; else "255:128:0";</script></foregroundColor>
+				<script>
+					if (jsnum !="") str_num = jsnum; else str_num = Title;
+					str_num ;
+				</script>
+			</text>
+		</progressPlay>
+
+		<progressBar offsetXPC=15, offsetYPC=50, widthPC=70, heightPC=25>
+		<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 backgroundColor=-1:-1:-1>
+			<script>tempdir + "seek_bg_d.png";</script>
+		</image>
+		<text redraw=yes offsetXPC=6.8 offsetYPC=65 widthPC=87.6 heightPC=5 backgroundColor=128:128:255 foregroundColor=128:128:255>
+			<script>null;</script>
+		</text>
+		<text offsetXPC=4 offsetYPC=3 heightPC=15 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 fontSize=15 widthPC=94 align=left>
+			<script>
+				"片名：" + Title;
+			</script>
+		</text>
+		<text offsetXPC=4 offsetYPC=40 heightPC=15 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 fontSize=15 widthPC=94 align=left>
+			<script>
+				"集数："+add(playTotal,1)+"/"+totalSize;
+			</script>
+		</text>
+		<text offsetXPC=30 offsetYPC=40 heightPC=15 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 fontSize=15 widthPC=30 align=left>
+			<script>
+				if(NetSpeed != null) "网速："+ getNetSpeed(); else "段数："+add(SectionNum,1)+"/"+urlSize;
+			</script>
+		</text>
+		<text offsetXPC=4 offsetYPC=75 heightPC=15 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 fontSize=15 widthPC=94 align=left>
+			<script>
+				"当前时间："+secondToString(playTime);
+			</script>
+		</text>
+		<text offsetXPC=38.5 offsetYPC=75 heightPC=15 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 fontSize=15 widthPC=30 align=left>
+			<script>
+				"定位到："+secondToString(playdwTime);
+			</script>
+		</text>
+		<text offsetXPC=68.5 offsetYPC=75 heightPC=15 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 fontSize=15 widthPC=30 align=left>
+			<script>
+				if (playTime &gt; 0) str_total = "全部时间：" + secondToString(totalTime); else str_total = "全部时间：00:00:00";
+				str_total;
+			</script>
+		</text>
+		<text redraw=yes offsetXPC=6.8 offsetYPC=65 heightPC=5 backgroundColor=175:88:0 foregroundColor=175:88:0>
+			<script>null;</script>
+			<widthPC>
+				<script>
+					if (playStatus == 2)
+					{
+						width = (playdwTime/totalTime*87.6);
+						if (width &gt;= 87.6) width = 87.6;
+						width;
+					}
+					else width = 0;
+					width;
+				</script>
+			</widthPC>
+		</text>
+		</progressBar>
+	</Status>
+
+	<onUserInput>
+		/* 遥控按键设置 */
+		ret = "false";
+		input = currentUserInput();
+		if (input == "video_stop" || input == "return")
+		{
+			if (info_int &gt; 0)
+			{
+				info_int = 0;
+				ret = "true";
+			}
+			else
+			{
+				executeScript("ExitFav");
+				ret = "return";
+			}
+		}
+		else if (input == "video_search")
+		{
+			if (PlayTypeS == null) executeScript("openSeek");
+			ret = "true";
+		}
+		else if (input == "option_red" || input == "display" &amp;&amp; pauseVideo != 2)
+		{
+			if (PlayTypeS == null)
+			{
+				infoDisplay = "info";
+				playdwTime = playTime;
+				if (info_int &gt; 0) info_int = 0; else info_int = 1;
+			}
+			ret = "true";
+		}
+		else if(input == "up" || input == "pagedown" &amp;&amp; info_int == 0)
+		{
+			if (totalSize &gt; 1)
+			{
+				infoDisplay = "index";
+				playTotal = add(playTotal,1);
+				if (playTotal &lt; 0) playTotal = minus(totalSize,1);
+				if (playTotal &gt; minus(totalSize,1)) playTotal = 0;
+				enterTime = 1;
+			}
+			ret = "true";
+		}
+		else if(input == "down" || input == "pageup" &amp;&amp; info_int == 0)
+		{
+			if (totalSize &gt; 1)
+			{
+				infoDisplay = "index";
+				playTotal = minus(playTotal,1);
+				if (playTotal &lt; 0) playTotal = minus(totalSize,1);
+				if (playTotal &gt; minus(totalSize,1)) playTotal = 0;
+				enterTime = 1;
+			}
+			ret = "true";
+		}
+		else if(input == "option_green" || input == "enter")
+		{
+			if (info_int &gt; 0 &amp;&amp; infoDisplay == "info" &amp;&amp; PlayTypeS == null) executeScript("playSeek");
+			else if (totalSize &gt; 1)
+			{
+				setEnv("PlayListID", playTotal);
+				playListdl = doModalRss(tz_playlist);
+				if (playListdl != null &amp;&amp; playListdl &gt; -1)
+				{
+					playTotal = Integer(playListdl);
+					if (playTotal != playNum) enterTime = 5;
+				}
+			}
+			ret = "true";
+		}
+		else if (input == "left")
+		{
+			if (PlayTypeS == null)
+			{
+				if (info_int &gt; 0 &amp;&amp; infoDisplay == "info")
+				{
+					info_int = 1;
+					playdwTime = minus(playdwTime, step_left);
+					if (playdwTime &lt;= 0) playdwTime = 5;
+				}
+				else executeScript("openSeek");
+			}
+			ret = "true";
+		}
+		else if (input == "right")
+		{
+			if (PlayTypeS == null)
+			{
+				if (info_int &gt; 0 &amp;&amp; infoDisplay == "info")
+				{
+					info_int = 1;
+					playdwTime = add(playdwTime, step_right);
+					if (playdwTime &gt;= totalTime) playdwTime = minus(totalTime,3);
+				}
+				else executeScript("openSeek");
+			}
+			ret = "true";
+		}
+		else if(input == "video_pause")
+		{
+			pauseVideo = 2;
+			infoDisplay = "pause";
+			playItemURL(-1, 2);
+			ret = "true";
+		}
+		else if(input == "video_play")
+		{
+			ret = "true";
+			if (info_int &gt; 0 &amp;&amp; infoDisplay == "info" &amp;&amp; pauseVideo == 1) postMessage("enter");
+			else
+			{
+				if (pauseVideo == 2)
+				{
+					info_int = 0;
+					pauseVideo = 1;
+					infoDisplay = "play";
+					ret = "false";
+				}
+				else
+				{
+					pauseVideo = 2;
+					infoDisplay = "pause";
+					playItemURL(-1, 2);
+				}
+			}
+		}
+		else if (input == "one" || input == "two" || input == "three" || input == "four" || input == "five" || input == "six" || input == "seven" || input == "eight" || input == "nine" || input == "zero" &amp;&amp; totalSize &gt; 1)
+		{
+			if (input == "one") jsnum = jsnum + "1";
+			if (input == "two") jsnum = jsnum + "2";
+			if (input == "three") jsnum = jsnum + "3";
+			if (input == "four") jsnum = jsnum + "4";
+			if (input == "five") jsnum = jsnum + "5";
+			if (input == "six") jsnum = jsnum + "6";
+			if (input == "seven") jsnum = jsnum + "7";
+			if (input == "eight") jsnum = jsnum + "8";
+			if (input == "nine") jsnum = jsnum + "9";
+			if (input == "zero") jsnum = jsnum + "0";
+			if (jsnum &lt; 0) jsnum = jsnum + "0";
+			if (jsnum == "0" || minus(jsnum,1) &lt; 0 || minus(jsnum,1) &gt; minus(totalSize,1)) jsnum = "";
+			enterTime = 1;
+		}
+		ret;
+	</onUserInput>
+
+</mediaDisplay>
+
+<openSeek>
+	if (playStatus == 2 &amp;&amp; PlayTypeS == null)
+	{
+		setEnv("video_playTime", playTime);
+		setEnv("video_totalTime", totalTime);
+		playdwTime = doModalRss(seek_path);
+		executeScript("playSeek");
+	}
+</openSeek>
+
+<playSeek>
+	/* 快速定位到指定时间 */
+	playSeekTime = playTime;
+	if (playdwTime &gt; 5)
+	{
+		dwplayTime = playdwTime;
+		if (urlSize &gt; 1 &amp;&amp; stopVideo == 0)
+		{
+			count = 0;
+			seekTime = 0;
+			while (1)
+			{
+				dursTime = getStringArrayAt(durArray, count);
+				if (dursTime != null) seekTime = add(seekTime, dursTime);
+				if (seekTime &gt;= playdwTime)
+				{
+					playdwTime = minus(dursTime, minus(seekTime, playdwTime));
+					if (SectionNum != count)
+					{
+						SectionNum = count;
+						executeScript("getURL");
+						if (Seek_Fs != "start") playItemURL(playPath, 3, bufPoolUnit, "mediaDisplay", "previewWindow");
+					}
+					break;
+				}
+				count += 1;
+			}
+		}
+		info_int = 0;
+		playSeek = 1;
+		infoDisplay = "seek";
+		SeekTime = playdwTime;
+	}
+	if (playXubo &gt; 0) playXubo = 0;
+	redrawDisplay();
+</playSeek>
+
+<ExitFav>
+	if (playFavmd5 != null &amp;&amp; playFavmd5 != "null" &amp;&amp; playType == "loadlist")
+	{
+		favSize = 0;
+		while (getStringArrayAt(fav4Array, 9) != null)
+		{
+			fav1Array = deleteStringArrayAt(fav1Array, 9);
+			fav2Array = deleteStringArrayAt(fav2Array, 9);
+			fav3Array = deleteStringArrayAt(fav3Array, 9);
+			fav4Array = deleteStringArrayAt(fav4Array, 9);
+			fav5Array = deleteStringArrayAt(fav5Array, 9);
+			fav6Array = deleteStringArrayAt(fav6Array, 9);
+			fav7Array = deleteStringArrayAt(fav7Array, 9);
+		}
+		while (getStringArrayAt(fav4Array, favSize) != null &amp;&amp; playFavmd5 != null &amp;&amp; playFavmd5 != "null")
+		{
+			if (getStringArrayAt(fav4Array, favSize) == playFavmd5)
+			{
+				fav1Array = deleteStringArrayAt(fav1Array, favSize);
+				fav2Array = deleteStringArrayAt(fav2Array, favSize);
+				fav3Array = deleteStringArrayAt(fav3Array, favSize);
+				fav4Array = deleteStringArrayAt(fav4Array, favSize);
+				fav5Array = deleteStringArrayAt(fav5Array, favSize);
+				fav6Array = deleteStringArrayAt(fav6Array, favSize);
+				fav7Array = deleteStringArrayAt(fav7Array, favSize);
+				break;
+			}
+			favSize += 1;
+		}
+		if (playFav == 0 &amp;&amp; playFavmd5 != null &amp;&amp; playFavmd5 != "null")
+		{
+			fav1Array = pushBackStringArray(fav1Array, playName);
+			fav2Array = pushBackStringArray(fav2Array, playFavimg);
+			fav3Array = pushBackStringArray(fav3Array, playFavurl);
+			fav4Array = pushBackStringArray(fav4Array, playFavmd5);
+			fav5Array = pushBackStringArray(fav5Array, playTotal);
+			fav6Array = pushBackStringArray(fav6Array, SectionNum);
+			fav7Array = pushBackStringArray(fav7Array, playTime);
+		}
+		writeStringToFile(fav1, fav1Array);
+		writeStringToFile(fav2, fav2Array);
+		writeStringToFile(fav3, fav3Array);
+		writeStringToFile(fav4, fav4Array);
+		writeStringToFile(fav5, fav5Array);
+		writeStringToFile(fav6, fav6Array);
+		writeStringToFile(fav7, fav7Array);
+	}
+</ExitFav>
+
+<channel>
+	<title>New TTzx Player Ver1.7</title>
+	<link>vst_play.rss</link>
+</channel>
+</rss>

@@ -1,0 +1,86 @@
+﻿<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<script>setFocusItemIndex(0);
+uipath = getEnv("uipath");
+titleArray = null;
+itxsArray = null;
+titleArray = pushBackStringArray(titleArray, "按热门排序");
+itxsArray = pushBackStringArray(itxsArray, "&amp;order=hot");
+titleArray = pushBackStringArray(titleArray, "按更新排序");
+itxsArray = pushBackStringArray(itxsArray, "&amp;order=pubtime");
+ 
+itemSize = 2;
+</script>
+<mediaDisplay name="photoView"
+	showHeader="no"
+	showDefaultInfo="no"
+	autoSelectItem="yes"
+	viewAreaXPC="0"
+	viewAreaYPC="66"
+	viewAreaWidthPC="100"
+	viewAreaHeightPC="25"
+	rowCount="1"
+	columnCount="5"
+	itemOffsetXPC="13"
+	sideTopHeightPC="0"
+	centerXPC="2"
+	centerYPC="77"
+	centerHeightPC = "15"
+	centerWidthPC = "10"
+	itemWidthPC="14"
+	drawItemBorder = "no"
+	imageBorderColor="0:150:255"
+	imageBorderPC="1"
+	itemBackgroundColor = "-1:-1:-1"
+	backgroundColor = "-1:-1:-1">
+<idleImage>image/POPUP_LOADING_01.png</idleImage>
+<idleImage>image/POPUP_LOADING_02.png</idleImage>
+<idleImage>image/POPUP_LOADING_03.png</idleImage>
+<idleImage>image/POPUP_LOADING_04.png</idleImage>
+<idleImage>image/POPUP_LOADING_05.png</idleImage>
+<idleImage>image/POPUP_LOADING_06.png</idleImage>
+<idleImage>image/POPUP_LOADING_07.png</idleImage>
+<idleImage>image/POPUP_LOADING_08.png</idleImage>
+<backgroundDisplay>
+<image offsetXPC="0" offsetYPC="66" widthPC="100" heightPC="100" backgroundColor = "-1:-1:-1"><script>uipath+"play_movie_bg.png";</script></image>
+</backgroundDisplay>
+<onEnter>setFullScreenFade(100);</onEnter>
+<onUserInput>
+ret="false";
+userInput = currentUserInput();
+if (userInput == "enter") {
+		XsID = getStringArrayAt(itxsArray, -1);
+		if (XsID != NULL) {
+			setEnv("ordertitleID",getStringArrayAt(titleArray, -1));
+			setReturnString(XsID);
+		}
+		ret = "return";
+	}
+else if (userInput == "up" || userInput == "video_stop" || userInput == "zoom" || userInput == "video_ffwd" || userInput == "option_yellow"){
+		ret = "return";
+		}
+ret;
+</onUserInput>
+<itemDisplay>
+<image offsetXPC="0" offsetYPC="0" widthPC="100" heightPC="100">
+	<script>
+		if(getDrawingItemState() == "focus")
+		{
+			tepimg=uipath + "online_info_focus.png" ;
+		}
+		else
+		{
+			tepimg=uipath + "online_info_unfocus.png";
+		}
+		tepimg;
+	</script>
+	</image>
+<text offsetXPC="0" offsetYPC="0" widthPC="100" heightPC="100" fontSize="13" foregroundColor="255:255:255" align="center">
+		<script>getStringArrayAt(titleArray, -1);</script>
+		</text>
+	</itemDisplay>
+</mediaDisplay>
+<channel>
+	<title>蓝莓电子 http://www.blueberry-tek.com</title>
+<itemSize><script>itemSize;</script></itemSize>
+</channel>
+</rss>

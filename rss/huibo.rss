@@ -1,0 +1,448 @@
+﻿<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<script>
+uipath = getEnv("uipath");
+downlink = getEnv("downlink");
+downrss = getEnv("downrss");
+  cachedpath = getStoragePath("tmp");
+</script>
+<script>
+n = 1;
+jsnum = "";
+datename = "";
+playtime = 0;
+pageIndex = 0;
+setFocusMenuIndex(0);
+openxmldl = loadXMLFile(downrss + "huibo.php");
+cancelIdle();
+if (openxmldl != null)
+{
+    menuSize = getXMLElementCount("list", "m");
+    if (menuSize &gt; 0)
+    {
+        count = 0;
+        menulinkArray = null;
+        menutitleArray = null;
+        
+        while(1)
+        {
+            
+            menulinkArray  = pushBackStringArray(menulinkArray, getXMLAttribute("list", "m", count, "list_src"));
+            menutitleArray  = pushBackStringArray(menutitleArray, getXMLAttribute("list", "m", count, "label"));
+            count += 1;
+            if (count &gt;= menuSize) {break;}
+        }
+        
+        selectMenu(0);
+        redrawDisplay();
+    }
+}
+</script>
+<onEnter>setRefreshTime(100);redrawDisplay();</onEnter>
+<onExit>setRefreshTime(-1);</onExit>
+<onRefresh>
+if (playtime &gt; 0) {playtime += 1;}
+if (playtime &gt;= 15)
+{
+        jsnum = "";
+        playtime = 0;
+        typeInfo = getPageInfo("majorContext");
+        if (typeInfo == "items")
+        {
+                if (pageIndex &lt;= 0) {pageIndex = 1;}
+                if (pageIndex &gt;= itemSize) {pageIndex = itemSize;}
+                setFocusItemIndex(minus(pageIndex,1));
+        }
+        else
+        {
+                if (pageIndex &lt;= 0) {pageIndex = 0;}
+                if (pageIndex &gt;= minus(menuSize,1)) {pageIndex = menuSize;}
+                setFocusmenuIndex(minus(pageIndex,1));
+        }
+        redrawDisplay();
+}
+</onRefresh>
+<mediaDisplay name=threePartsView
+itemGap=1
+sideRightWidthPC=0
+sideBottomHeightPC=0
+rollItems=yes
+selectMenuOnRight=no
+fontSize=18
+forceFocusOnMenu=yes
+forceFocusOnItem=yes
+autoSelectMenu=no
+autoSelectItem=no
+sideTopHeightPC=0
+sideColorLeft=0:0:0
+sideColorRight=0:0:0
+sideColorTop=0:0:0
+backgroundColor=-1:-1:-1
+itemBackgroundColor=0:0:0
+
+menuXPC=6
+menuYPC=20
+	menuWidthPC=20
+menuHeightPC=6.5
+menuPerPage=10
+
+sideLeftWidthPC=19
+	itemImageXPC=30
+itemImageYPC=18
+	itemXPC=32
+itemYPC=18
+itemWidthPC=60
+		itemHeightPC=7
+itemPerPage=10
+capYPC=0
+capWidthPC=0
+capHeightPC=0
+drawItemBorder=no
+showHeader="no"
+showDefaultInfo="no"
+showHelpInfo=no
+idleImageXPC=85
+idleImageYPC=86
+idleImageWidthPC=3.2
+idleImageHeightPC=5.5>
+<idleImage>image/POPUP_LOADING_01.png</idleImage>
+<idleImage>image/POPUP_LOADING_02.png</idleImage>
+<idleImage>image/POPUP_LOADING_03.png</idleImage>
+<idleImage>image/POPUP_LOADING_04.png</idleImage>
+<idleImage>image/POPUP_LOADING_05.png</idleImage>
+<idleImage>image/POPUP_LOADING_06.png</idleImage>
+<idleImage>image/POPUP_LOADING_07.png</idleImage>
+<idleImage>image/POPUP_LOADING_08.png</idleImage>
+	<backgroundDisplay name=veryhd_program_bg>
+		<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100>
+			<script>
+				uipath + "huobo_bg.png";
+			</script>
+		</image>
+	</backgroundDisplay>
+	<text redraw="yes" offsetXPC=6.2 offsetYPC=3.1 widthPC=20 heightPC=8 fontSize=24 align=left backgroundColor=-1:-1:-1 useBackgroundSurface="yes" foregroundColor=200:200:200>
+<script>"30天回播";</script></text>
+
+	<image offsetXPC=72 offsetYPC=3.6 widthPC=20.39 heightPC=9.03>
+		<script>
+			uipath + "logo.png";
+		</script>
+	</image>
+
+	<image redraw=yes offsetXPC=12 offsetYPC=13 widthPC=6.5 heightPC=6.5>
+		<script>
+			index = getFocusMenuIndex();
+			if (index &gt; 0)
+				uipath + "left_arrow_up_focus.png";
+			else
+				uipath + "arrow_unfocus.png";
+		</script>
+	</image>
+
+	<image redraw=yes offsetXPC=12 offsetYPC=85 widthPC=6.5 heightPC=6.5>
+		<script>
+			index = getFocusMenuIndex();
+			if (index &lt; (menuSize-1))
+				uipath + "left_arrow_down_focus.png";
+			else
+				uipath + "arrow_unfocus.png";;
+		</script>
+	</image>
+
+<text offsetXPC=30 offsetYPC=88 widthPC=98 heightPC=10 fontSize=15 align=left backgroundColor=-1:-1:-1 foregroundColor=200:200:200>
+[INFO/信息] 键更换日期</text>
+<text redraw="yes" offsetXPC=30 offsetYPC=5 widthPC=47 heightPC=8 fontSize=18 align=left backgroundColor=-1:-1:-1 useBackgroundSurface="yes" foregroundColor=200:200:200>
+<script>playname + ">>" + datename;</script></text>
+<menuDisplay>
+<text offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 useBackgroundSurface=yes/>
+    <image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100>
+        <script>
+			index1 = getFocusMenuIndex();
+			index2 = getQueryMenuIndex();
+			if (index1 == index2)
+			{
+				context = getPageInfo("majorContext");
+				if (context == "menu")
+				{
+					uipath + "movie_guide_focus.png";
+				}
+				else
+				{
+					uipath + "movie_guide_inactive.png";
+				}
+			}
+			else
+				null;
+        </script>
+    </image>
+    <text fontSize=19 align=center offsetXPC=2 offsetYPC=2 widthPC=96 heightPC=96 backgroundColor=-1:-1:-1 foregroundColor=250:250:250>
+        <script>
+		index = getQueryMenuIndex();
+		getStringArrayAt(menutitleArray, index);
+        </script>
+    </text>
+</menuDisplay>
+<itemDisplay>
+<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 useBackgroundSurface="yes" />
+<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 >
+<script>
+status = getDrawingItemState();
+if (status == "focus")
+{
+        uipath + "submit_focus.png";
+}
+else
+{
+        null;
+}
+</script>
+</image>
+<text offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 backgroundColor=-1:-1:-1 fontSize=20>
+<foregroundColor>
+<script>
+status = getDrawingItemState();
+if (status == "focus")
+{
+        "255:255:0";
+}
+else
+{
+        "255:255:255";
+}
+</script>
+</foregroundColor>
+<script>getStringArrayAt(titleArray ,-1);</script>
+</text>
+</itemDisplay>
+<onUserInput>
+<script>
+ret = "false";
+input = currentUserInput();
+itemIndex = getFocusItemIndex();
+pageInfo = getPageInfo("majorContext");
+if (input == "one" || input == "two" || input == "three" || input == "four" || input == "five" || input == "six" || input == "seven" || input == "eight" || input == "nine" || input == "zero")
+{
+        if (input == "one") jsnum = jsnum + "1";
+        if (input == "two") jsnum = jsnum + "2";
+        if (input == "three") jsnum = jsnum + "3";
+        if (input == "four") jsnum = jsnum + "4";
+        if (input == "five") jsnum = jsnum + "5";
+        if (input == "six") jsnum = jsnum + "6";
+        if (input == "seven") jsnum = jsnum + "7";
+        if (input == "eight") jsnum = jsnum + "8";
+        if (input == "nine") jsnum = jsnum + "9";
+        if (input == "zero") jsnum = jsnum + "0";
+        if (jsnum &lt; 0) jsnum = jsnum + "0";
+        pageIndex = integer(jsnum);
+        playtime = 1;
+}
+else if (input == "display" || input == "option_red")
+{
+        executeScript("changedate");
+        ret="true";
+}
+else if (pageInfo == "items")
+{
+        itemIndex = getFocusItemIndex();
+        if (input == "up")
+        {
+                if ((itemIndex%itemSize) == 0)
+                {
+                        n = minus(n,1);
+                        if (n &lt;0){n=minus(dateSize,1);}
+                        if (n &gt;dateSize){n=0;}
+                        datelink = getStringArrayAt(dlinkArray ,n);
+                        datename = getStringArrayAt(dtitleArray ,n);
+                        executeScript("opendate");
+                }
+        }
+        if (input == "down")
+        {
+                if ((itemIndex%itemSize) == (itemSize-1))
+                {
+                        n = add(n,1);
+                        if (n &lt;0){n=minus(dateSize,1);}
+                        if (n &gt;dateSize){n=0;}
+                        datelink = getStringArrayAt(dlinkArray ,n);
+                        datename = getStringArrayAt(dtitleArray ,n);
+                        executeScript("opendate");
+                }
+        }
+        if (input == "right")
+        {
+                ret = "true";
+        }
+}
+else if (pageInfo == "menu")
+{
+        if (input == "left")
+        {
+                ret = "true";
+        }
+        else if (input == "right")
+        {
+                focus = getFocusMenuIndex();
+                if (sflinkid != focus || focus == 0)
+                {
+                        showIdle();
+                        selectMenu(focus);
+                }
+                redrawDisplay();
+        }
+        else if (input == "enter")
+        {
+             
+                postMessage("right");
+                ret = "true";
+             
+        }
+}
+ret;
+</script>
+</onUserInput>
+</mediaDisplay>
+<changedate>
+setEnv("dateArray", dtitleArray);
+changedatepath = uipath + "huibo_date.rss";
+	if (readStringFromFile(changedatepath) == null )dldUrl2File(downrss + "../rss/huibo_date.rss",changedatepath);
+fl_id = doModalRss(changedatepath);
+if (fl_id != null)
+{
+        n = fl_id;
+        if (n &gt; minus(dateSize,1)) {n = 0;}
+        if (n &lt; 0) {n = minus(dateSize,1);}
+        datelink = getStringArrayAt(dlinkArray ,n);
+        datename = getStringArrayAt(dtitleArray ,n);
+        executeScript("opendate");
+        redrawDisplay();
+}
+</changedate>
+<openxml>
+datexmldl = loadXMLFile(playlink);
+cancelIdle();
+if (datexmldl != null)
+{
+    dateSize = getXMLElementCount("list", "m");
+    if (dateSize &gt; 0)
+    {
+        count = 0;
+        dlinkArray = null;
+        dtitleArray = null;
+        while(1)
+        {
+            dlinkArray  = pushBackStringArray(dlinkArray, getXMLAttribute("list", "m", count, "list_src"));
+            dtitleArray  = pushBackStringArray(dtitleArray, getXMLAttribute("list", "m", count, "date"));
+            count += 1;
+            if (count &gt;= dateSize) {break;}
+        }
+    }
+}
+datelink = getStringArrayAt(dlinkArray ,0);
+datename = getStringArrayAt(dtitleArray ,0);
+if (datelink != null)
+{
+   openxmldl = loadXMLFile(datelink);
+   cancelIdle();
+   if (openxmldl != null)
+   {
+       itemSize = getXMLElementCount("list", "m");
+       if (itemSize &gt; 0)
+       {
+           count = 0;
+           linkArray = null;
+           titleArray = null;
+           while(1)
+           {
+               linkArray  = pushBackStringArray(linkArray, getXMLAttribute("list", "m", count, "src"));
+               titleArray  = pushBackStringArray(titleArray, getXMLAttribute("list", "m", count, "label"));
+               count += 1;
+               if (count &gt;= itemSize) {break;}
+           }
+           setItemFocus(0);
+           setFocusItemIndex(-1);
+           redrawDisplay();
+       }
+   }
+}
+if(n == null){n = 1;}
+datelink = getStringArrayAt(dlinkArray ,n);
+datename = getStringArrayAt(dtitleArray ,n);
+executeScript("opendate");
+</openxml>
+<opendate>
+if (datelink != null)
+{
+   openxmldl = loadXMLFile(datelink);
+   cancelIdle();
+   if (openxmldl != null)
+   {
+       itemSize = getXMLElementCount("list", "m");
+       if (itemSize &gt; 0)
+       {
+           count = 0;
+           linkArray = null;
+           titleArray = null;
+           while(1)
+           {
+               linkArray  = pushBackStringArray(linkArray, getXMLAttribute("list", "m", count, "src"));
+               titleArray  = pushBackStringArray(titleArray, getXMLAttribute("list", "m", count, "label"));
+               count += 1;
+               if (count &gt;= itemSize) {break;}
+           }
+           setItemFocus(0);
+           setFocusItemIndex(0);
+           redrawDisplay();
+       }
+   }
+}
+</opendate>
+<golanmu>
+	dianbopath=uipath + "hb_dianbo.rss";
+	if (readStringFromFile(dianbopath) == null )
+		dldUrl2File(downrss + "../rss/hb_dianbo.rss",dianbopath);
+		
+	jumpToLink("dianbolink");
+</golanmu>
+<dianbolink><link><script>uipath +"hb_dianbo.rss";</script></link></dianbolink>
+<menu_template>
+<onClick>
+sflinkid = getFocusMenuIndex();
+playname = getStringArrayAt(menutitleArray, sflinkid);
+playlink = getStringArrayAt(menulinkArray, sflinkid);
+if (playlink == "dianbo")
+{
+executeScript("golanmu");
+}
+else
+{
+executeScript("openxml");
+}
+</onClick>
+</menu_template>
+<item_template>
+<onClick>
+  setEnv("xubo", "no");
+  itemid = getFocusItemIndex();
+  Title=getStringArrayAt(titleArray,itemid);
+	playArray = null;
+	playArray = pushBackStringArray(playArray, itemid);
+	playArray = pushBackStringArray(playArray, "电视回播");
+	playArray = pushBackStringArray(playArray, "null");
+	playArray = pushBackStringArray(playArray, "null");
+	playArray = pushBackStringArray(playArray, "null");
+	playArray = pushBackStringArray(playArray, "loadlist");
+	playArray = pushBackStringArray(playArray, "url");
+	playArray = pushBackStringArray(playArray, "null");	
+	setEnv("videoPlayLink", linkArray);
+	setEnv("videoPlayTitle", titleArray);
+	setEnv("playName", Title);
+	setEnv("readplay", playArray);
+	playpath = uipath + "vs_play.rss";
+	if (readStringFromFile(playpath) == null )dldUrl2File(downrss + "../rss/vs_play.rss",playpath);
+	playpath;
+</onClick>
+</item_template>
+<channel>
+<menuSize><script>menuSize;</script></menuSize>
+<itemSize><script>itemSize;</script></itemSize>
+</channel>
+</rss>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wlhdvideo><videolist>
+<video>
+	<?php foreach($list as $s => $split): ?>
+	<coderate player="<?php echo $player;?>" playname="<?php echo $s;?>">
+	<?php foreach($split as $title => $url): ?> <videourl
+		playurl="<?php echo $url;?>" playtitle="<?php echo $title;?>" /> <?php endforeach; ?>
+	</coderate>
+	<?php endforeach; ?>
+</video>
+</videolist></wlhdvideo>

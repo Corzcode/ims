@@ -1,0 +1,90 @@
+﻿<rss version="2.0" xmlns:media="http://purl.org/dc/elements/1.1/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<script>uipath = getEnv("uipath");</script>
+<script>
+exitSize = 4;
+exitlink = null;
+exittitle = null;
+exitlink = pushBackStringArray(exitlink, "saveexit");
+exitlink = pushBackStringArray(exitlink, "exit");
+exitlink = pushBackStringArray(exitlink, "return");
+exitlink = pushBackStringArray(exitlink, "savereturn");
+exittitle = pushBackStringArray(exittitle, "保存退出");
+exittitle = pushBackStringArray(exittitle, "直接退出");
+exittitle = pushBackStringArray(exittitle, "继续播放");
+exittitle = pushBackStringArray(exittitle, "保存并继续播放");
+
+setFocusItemIndex(0);
+</script>
+<mediaDisplay name=onePartView
+viewAreaXPC=40
+viewAreaYPC=35
+viewAreaWidthPC=22
+viewAreaHeightPC=32
+itemXPC=12
+itemYPC=20
+itemWidthPC=78
+itemHeightPC=18
+itemImageXPC=12
+itemImageYPC=25
+itemImageWidthPC=78
+itemImageHeightPC=18
+backgroundColor=-1:-1:-1
+itemBackgroundColor=-1:-1:-1
+showHeader="no"
+showDefaultInfo="no"
+rollItems="no"
+forceRedrawItems="yes">
+<backgroundDisplay name="veryhd_playexit_bg">
+<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100><script>uipath+"submit_bg.png";</script></image>
+</backgroundDisplay>
+<text offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=13 fontSize=14 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 align=center>正在播放中，确定退出？</text>
+<itemDisplay>
+<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 useBackgroundSurface="yes" />
+<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100>
+<script>
+status = getDrawingItemState();
+if (status == "focus")
+{
+uipath + "submit_focus.png";
+}
+else
+{
+null;
+}
+</script>
+</image>
+<text offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 fontSize=14 backgroundColor=-1:-1:-1 align=center>
+<foregroundColor>
+	<script>
+	fg="250:250:250";
+	index1 = getQueryItemIndex();
+	index2 = getFocusItemIndex();
+	if (index1 == index2)
+	{
+		fg="255:255:0";
+	}
+	fg;
+</script>
+</foregroundColor>
+<script>getStringArrayAt(exittitle, -1);</script>
+</text>
+</itemDisplay>
+<onUserInput>
+ret = "false";
+input = currentUserInput();
+if (input == "left" || input == "right")
+{
+	ret = "true";
+}
+else if (input == "enter" || input == "video_play")
+{
+	setReturnString(getStringArrayAt(exitlink, -1));
+	ret = "return";
+}
+ret;
+</onUserInput>
+</mediaDisplay>
+<channel>
+<itemSize><script>exitSize;</script></itemSize>
+</channel>
+</rss>

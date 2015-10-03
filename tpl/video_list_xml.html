@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wlhdvideo>
+<pageinfo recordcount="9999999" pagecount="999999" pagesize="10" pageindex="1" video="<?php echo $videos;?>" />
+<videolist>
+<?php if(empty($list)): ?>
+	<video videoid="0" videocid="-" classname="" videoname="没有了" videomd5="mov0" 
+	    videogold="-" actor="0" director="0" area="0"
+		year="" language="" videoplay="" pic="/" vidclass="<?php echo $videos;?>">
+		<intro> <![CDATA[ -- ]]> </intro>
+	</video>
+<?php else: ?>
+	<?php foreach($list as $v): ?>
+	<video videoid="<?php echo $v['id']; ?>" videocid="-" classname="" videoname="<?php echo $v['title']; ?>" videomd5="mov<?php echo crc32($v['id']); ?>" 
+	    videogold="-" actor="<?php echo $v['actor']; ?>" director="<?php echo $v['director']; ?>" area="<?php echo $v['area']; ?>"
+		year="<?php echo $v['year']; ?>" language="" videoplay="" pic="<?php echo $v['pic']; ?>?show" vidclass="<?php echo $videos;?>">
+		<intro> <![CDATA[ --<?php echo $v['title']; ?>-- ]]> </intro>
+	</video>
+	<?php endforeach; ?>
+<?php endif; ?>
+</videolist>
+</wlhdvideo>

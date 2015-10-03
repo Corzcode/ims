@@ -1,0 +1,1071 @@
+﻿<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<script>
+uipath = getEnv("uipath");
+downrss = getEnv("downrss");
+</script>
+<script>
+if (pageIndex == null){pageIndex=1;}
+tsname = null;
+XmlPath = null;
+arealist = "";
+from = "";
+order = "";
+
+preOrderPath = uipath+"vod_order.dat"; 
+preOrder = readStringFromFile(preOrderPath);
+if (preOrder != null )
+	order = preOrder;
+
+filmclassname = "";
+		typeshow = ">>全部";
+		areashow = "";
+		fromshow = "";
+		ordershow = "  按年份排序";
+		setEnv("ordertitleID",ordershow);
+		searchshow = "";
+     menuTitleArray = null;
+     menulinkArray = null;
+menuTitleArray  = pushBackStringArray(menuTitleArray, "超级搜索");
+menulinkArray  = pushBackStringArray(menulinkArray, "search");
+menuTitleArray  = pushBackStringArray(menuTitleArray, "切换类型");
+menulinkArray  = pushBackStringArray(menulinkArray, "changetype");
+menuTitleArray  = pushBackStringArray(menuTitleArray, "最近观看");
+menulinkArray  = pushBackStringArray(menulinkArray, "Record");
+menuTitleArray  = pushBackStringArray(menuTitleArray, "我的收藏");
+menulinkArray  = pushBackStringArray(menulinkArray, "fav");
+currentcacheddyUrl = null;
+
+xmlcachedUrl = null;
+
+
+classUrl = getEnv("videoClassURL");    
+if ( classUrl == "1")
+{	statusinfo = "电影";
+	filmclassname = "电影";
+}
+else if ( classUrl == "2")
+{	statusinfo = "电视剧";
+	filmclassname = "电视剧";
+}
+else if ( classUrl == "3")
+{	statusinfo = "动漫";
+	filmclassname = "动漫";
+}
+else if ( classUrl == "4")
+{	statusinfo = "综艺";
+	filmclassname = "综艺";
+}
+
+usermac = getMacAddressInfo("$[NET3POE_WIRED_INTERFACE]");
+if (usermac == null) {usermac = getMacAddress();}
+
+ 
+ItemMlUrl = downrss + "vod_xml.php?videoid=";
+currentUrl = ItemMlUrl + classUrl;
+print("#### xx",currentUrl);
+dlxml = loadXMLFile(currentUrl);
+print("##dlxml",dlxml);
+cancelIdle();
+if (dlxml != null)
+  {
+    menuSize = getXMLElementCount("filmclasslist", "filmclass","filmclass");
+    if (menuSize &gt; 0)
+    {
+     counp=0;
+      while(1)
+      {
+        menutitle  = getXMLAttribute("filmclasslist","filmclass","filmclass",counp,"filmclassname");
+        menulink = getXMLAttribute("filmclasslist","filmclass","filmclass",counp,"contenturl");
+        menuTitleArray  = pushBackStringArray(menuTitleArray, menutitle);
+        menulinkArray  = pushBackStringArray(menulinkArray, menulink);
+        counp += 1;
+        if (counp == menuSize)
+        {
+	       break;
+        }
+      }
+   }
+ }
+ menuSize = add(menuSize,4);
+
+nowtime = 1;
+sfyaj = 0;
+playnumwbs = "";
+lingshilogo=uipath + "movielogo.png";
+setFocusMenuIndex(4);
+selectMenu(4);
+</script>
+<onEnter>setRefreshTime(100);</onEnter>
+<onExit>setRefreshTime(-1);</onExit>
+<onRefresh>
+if(nowtime &gt; 1) {
+nowtime = nowtime + 2;
+if (nowtime &gt; 40) {
+nowtime = 1;
+executeScript("openxml");
+redrawDisplay();
+null;
+   }
+}
+</onRefresh>
+<mediaDisplay name=menuGridView rowCount=2 columnCount=5
+fontSize=25
+menuXPC=6
+menuYPC=20
+menuWidthPC=12
+menuHeightPC=7
+menuPerPage=9
+menuBackgroundColor=1:1:1
+itemAlignt="center"
+showDefaultInfo=no
+itemXPC=22
+itemYPC=11
+itemWidthPC=13
+itemHeightPC=35
+itemImagewidthPC=13
+itemImageHeightPC=35
+itemGapXPC=1
+itemGapYPC=2
+showHeader="no"
+sideTopHeightPC=0
+centerHeightPC=100
+autoSelectItem=no
+autoSelectMenu=no
+drawItemBorder=yes
+forceFocusOnItem=no
+forceFocusOnMenu=no
+itemBackgroundColor=-1:-1:-1
+backgroundColor=-1:-1:-1
+imageBorderPC=1
+idleImageXPC=85
+idleImageYPC=86
+idleImageWidthPC=3.2
+idleImageHeightPC=5.5
+itemBorderColor=228:191:18
+>
+<idleImage>image/POPUP_LOADING_01.png</idleImage>
+<idleImage>image/POPUP_LOADING_02.png</idleImage>
+<idleImage>image/POPUP_LOADING_03.png</idleImage>
+<idleImage>image/POPUP_LOADING_04.png</idleImage>
+<idleImage>image/POPUP_LOADING_05.png</idleImage>
+<idleImage>image/POPUP_LOADING_06.png</idleImage>
+<idleImage>image/POPUP_LOADING_07.png</idleImage>
+<idleImage>image/POPUP_LOADING_08.png</idleImage>
+<backgroundDisplay name="veryhdlistBackground"><image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100><script>uipath + "list_bg.png";</script></image></backgroundDisplay>
+<!--
+<text offsetXPC=5 offsetYPC=90 widthPC=96 heightPC=5 fontSize=14 foregroundColor=255:255:0>【信息】切换类型   【停止/绿键】筛选地区   【快进/黄键】更改排序   【选时/搜索/缩放键】搜索</text>
+-->
+<text offsetXPC=22 offsetYPC=90 widthPC=53 heightPC=5 fontSize=14 backgroundColor=-1:-1:-1 foregroundColor=200:200:200>
+<script>
+if (menulinkstatus=="Record" || menulinkstatus=="fav" )
+{
+	"【热键】删除选中记录";
+}
+else
+{
+	"【信息】切换类型      【上下曲】翻页    【热键】更改排序";
+}
+</script>
+</text>
+
+<text redraw="yes" offsetXPC=75 offsetYPC=90 widthPC=20 heightPC=5 fontSize=16 backgroundColor=-1:-1:-1 foregroundColor=200:200:200 align=right useBackgroundSurface="yes">
+<script>
+infostr;
+</script>
+</text>
+<!-- <text redraw="yes" offsetXPC=3.5 offsetYPC=5 widthPC=50 heightPC=5 fontSize=18 backgroundColor=-1:-1:-1 foregroundColor=255:255:0 align=left useBackgroundSurface="yes">
+<script>
+statusinfo + typeshow + areashow + searchshow + "." +ordershow;
+</script>
+</text> -->
+<text redraw="yes" offsetXPC=3.5 offsetYPC=4 widthPC=50 heightPC=5 fontSize=16 backgroundColor=-1:-1:-1 foregroundColor=255:255:0 align=left useBackgroundSurface="yes">
+<script>
+statusinfo + typeshow   ;
+</script>
+</text>
+
+	<image redraw=yes offsetXPC=8.3 offsetYPC=13 widthPC=6.5 heightPC=6.5>
+		<script>
+			index = getFocusMenuIndex();
+			if (index &gt; 0)
+				uipath + "left_arrow_up_focus.png";
+			else
+				uipath + "arrow_unfocus.png";
+		</script>
+	</image>
+
+	<image redraw=yes offsetXPC=8.3 offsetYPC=84 widthPC=6.5 heightPC=6.5>
+		<script>
+			index = getFocusMenuIndex();
+			if (index &lt; (menuSize-1))
+				uipath + "left_arrow_down_focus.png";
+			else
+				uipath + "arrow_unfocus.png";;
+		</script>
+	</image>
+	
+<text redraw="yes" offsetXPC=25 offsetYPC=5 widthPC=70 heightPC=7 lines=1 fontSize=25 backgroundColor=-1:-1:-1 foregroundColor=255:255:0 align=center useBackgroundSurface="yes">
+<script>""+getStringArrayAt(titleArray, -1);</script></text>
+<menuDisplay>
+		<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 useBackgroundSurface="yes"/>
+		<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100>
+		<script>
+		index1 = getQueryMenuIndex();
+		index2 = getFocusMenuIndex();
+		pageInfo = getPageInfo("majorContext");
+	if (pageInfo == "menu")
+	{
+infostr = " ";
+	}
+	else {
+	infostr ="页码:"+ pageIndex  + " / " + maxpage + " 页";
+	}
+		if (index1  == index2)
+		{
+    if (pageInfo == "menu")
+		{
+			uipath + "movie_guide_focus.png";
+		}
+    else if (pageInfo == "items")
+		{
+			uipath + "movie_guide_inactive.png";
+		}
+		}
+		else
+		{
+			NULL;
+		}
+		</script>
+		</image>
+		<text offsetXPC=0 offsetYPC=10 widthPC=100 heightPC=80 backgroundColor=-1:-1:-1 align=center >
+		<foregroundColor>
+			<script>
+			fg="250:250:250";
+			index1 = getQueryMenuIndex();
+			index2 = getFocusMenuIndex();
+			if (index1 == index2)
+			{
+				fg="255:255:0";
+			}
+			fg;
+		</script>
+		</foregroundColor>
+		<fontSize>
+			<script>
+			font_size="18";
+			index1 = getQueryMenuIndex();
+			index2 = getFocusMenuIndex();
+			if (index1 == index2)
+			{
+				font_size="20";
+			}
+			font_size;
+		</script>
+		</fontSize>
+		<script>
+		index = getQueryMenuIndex();
+		str = getStringArrayAt(menuTitleArray, index);
+		str;
+		</script>
+		</text>
+	</menuDisplay>
+<itemDisplay>
+		<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 useBackgroundSurface="yes"/>
+<image>
+<offsetXPC>
+	<script>
+		pageInfo = getPageInfo("majorContext");
+	if (pageInfo == "menu")"4";
+else
+{
+		queryIndex = getQueryItemIndex();
+		focusIndex = getFocusItemIndex();
+		if(queryIndex == focusIndex)
+		"2";
+		else
+		"4";
+}
+	</script>
+</offsetXPC>
+<offsetYPC>
+	<script>
+		pageInfo = getPageInfo("majorContext");
+	if (pageInfo == "menu")"4";
+else
+{
+		queryIndex = getQueryItemIndex();
+		focusIndex = getFocusItemIndex();
+		if(queryIndex == focusIndex)
+		"2";
+		else
+		"4";
+}
+	</script>
+</offsetYPC>
+<widthPC>
+	<script>
+		pageInfo = getPageInfo("majorContext");
+	if (pageInfo == "menu")"92";
+else
+{
+		queryIndex = getQueryItemIndex();
+		focusIndex = getFocusItemIndex();
+		if(queryIndex == focusIndex)
+		"96";
+		else
+		"92";
+}
+	</script>
+</widthPC>
+<heightPC>
+	<script>
+		pageInfo = getPageInfo("majorContext");
+	if (pageInfo == "menu")"74";
+else
+{
+		queryIndex = getQueryItemIndex();
+		focusIndex = getFocusItemIndex();
+		if(queryIndex == focusIndex)
+		"84";
+		else
+		"78";
+}
+	</script>
+</heightPC>
+<script>getStringArrayAt(imgArray , -1);</script>
+</image>
+<image>
+<offsetXPC>
+	<script>
+		queryIndex = getQueryItemIndex();
+		focusIndex = getFocusItemIndex();
+		if(queryIndex == focusIndex)
+		"0";
+		else
+		"0";
+	</script>
+</offsetXPC>
+<offsetYPC>
+	<script>
+		queryIndex = getQueryItemIndex();
+		focusIndex = getFocusItemIndex();
+		if(queryIndex == focusIndex)
+		"0";
+		else
+		"0";
+	</script>
+</offsetYPC>
+<widthPC>
+	<script>
+		queryIndex = getQueryItemIndex();
+		focusIndex = getFocusItemIndex();
+		if(queryIndex == focusIndex)
+		"100";
+		else
+		"100";
+	</script>
+</widthPC>
+<heightPC>
+	<script>
+		queryIndex = getQueryItemIndex();
+		focusIndex = getFocusItemIndex();
+		if(queryIndex == focusIndex)
+		"100";
+		else
+		"100";
+	</script>
+</heightPC>
+</image>
+<text offsetXPC=0 offsetYPC=43 widthPC=100 heightPC=100 fontSize=13 align=center backgroundColor=-1:-1:-1 foregroundColor=250:250:250>
+<script>getStringArrayAt(titleArray , -1);</script></text>
+</itemDisplay>
+<onUserInput>
+input = currentUserInput();
+print("vodinputinput", input);
+pageInfo = getPageInfo("majorContext");
+itemIndex = getFocusItemIndex();
+ret = "false";
+menusizestatus = getFocusMenuIndex();
+menulinkstatus=getStringArrayAt(menulinkArray, menusizestatus);
+if ( input == "video_search" || input == "video_seek"  || input == "zoom" ){executeScript("opensearch");}
+if ( input == "option_yellow" || input == "video_ffwd" || input == "menu"){if (menulinkstatus=="Record" || menulinkstatus=="fav") null; else executeScript("caidanmenu");}
+if (input == "option_blue" || input == "video_play"){if (menulinkstatus=="Record" || menulinkstatus=="fav") null; else executeScript("changefrom");}
+ if (input == "return"){
+ setEnv("wlhdhome", "exit");
+ret="return";
+}
+if (pageInfo == "items")
+{
+if (input == "display" || input == "option_red" || input == "video_abrepeat"){executeScript("homemenu");}
+if (input == "option_green" || input == "video_stop" || input == "menu"){
+menusizestatus = getFocusMenuIndex();
+menulinkstatus=getStringArrayAt(menulinkArray, menusizestatus);
+if (menulinkstatus=="Record" || menulinkstatus=="fav")
+{
+setEnv("favtitle",getStringArrayAt(titleArray , -1));
+setEnv("submitstatus","vidfav");
+uipath = getEnv("uipath");
+submitPath = uipath+"submit.rss";
+		Flagsubmit = readStringFromFile(submitPath);
+		if (Flagsubmit == null )dldUrl2File(downrss + "../rss/submit.rss",submitPath);
+	submittv = doModalRss(submitPath);
+	if (submittv == "1")
+	 {
+   mlxz = getStringArrayAt(menulinkArray, getFocusMenuIndex());
+   if(mlxz == "Record"){
+    indexD = (itemSize-getFocusItemIndex()-1);
+    if (indexD &gt; -1) {
+    jltitlePath = uipath+"wlhdRecord_title.dat";
+    jlimgPath = uipath+"wlhdRecord_img.dat";
+    jllinkPath = uipath+"wlhdRecord_link.dat"; 
+	jlvidclsPath = uipath+"wlhdRecord_vidcls.dat"; 
+    RecordtitleArray=readStringFromFile(jltitlePath);
+    RecordimgArray=readStringFromFile(jlimgPath);
+    RecordlinkArray=readStringFromFile(jllinkPath);
+	RecordvidclsArray=readStringFromFile(jlvidclsPath);
+    RecordlinkArray = deleteStringArrayAt(RecordlinkArray, indexD);
+    RecordimgArray = deleteStringArrayAt(RecordimgArray, indexD);
+    RecordtitleArray = deleteStringArrayAt(RecordtitleArray, indexD);
+	RecordvidclsArray = deleteStringArrayAt(RecordvidclsArray, indexD);
+	
+    writeStringToFile(jltitlePath,RecordtitleArray);
+    writeStringToFile(jlimgPath,RecordimgArray);
+    writeStringToFile(jllinkPath,RecordlinkArray);
+	writeStringToFile(jlvidclsPath,RecordvidclsArray);
+	
+    executeScript("openfav");
+    }
+   }
+   else if(mlxz == "fav"){
+      indexD = (itemSize-getFocusItemIndex()-1);
+      if (indexD &gt; -1) {
+      sctitlePath = uipath+"wlhdfav_title.dat";
+      scimgPath = uipath+"wlhdfav_img.dat";
+      sclinkPath = uipath+"wlhdfav_link.dat";
+	  scvidclsPath = uipath+"wlhdRecord_vidcls.dat";
+      favtitleArray=readStringFromFile(sctitlePath);
+      favimgArray=readStringFromFile(scimgPath);
+      favlinkArray=readStringFromFile(sclinkPath);
+	  favvidclsArray=readStringFromFile(scvidclsPath);
+	  
+      favlinkArray = deleteStringArrayAt(favlinkArray, indexD);
+      favimgArray = deleteStringArrayAt(favimgArray, indexD);
+      favtitleArray = deleteStringArrayAt(favtitleArray, indexD);
+	  favvidclsArray = deleteStringArrayAt(favvidclsArray, indexD);
+      writeStringToFile(sctitlePath,favtitleArray);
+      writeStringToFile(scimgPath,favimgArray);
+      writeStringToFile(sclinkPath,favlinkArray);
+	  writeStringToFile(scvidclsPath,favvidclsArray);
+      executeScript("openfav");
+     } 
+   }
+   }
+ }
+else
+{
+executeScript("changearea");}}
+if (input == "right")
+			 {
+				 if ((itemIndex%itemSize) == (itemSize-1))
+				 {
+					 input = "pagedown";
+				 }
+			 }
+if (input == "pagedown" || input == "pageup" || input == "one" || input == "two" || input == "three" || input == "four" || input == "five" || input == "six" || input == "seven" || input == "eight" || input == "nine" || input == "zero"){
+if (input == "pagedown"){pageIndex=add(pageIndex, 1);}
+if (input == "pageup"){pageIndex=minus(pageIndex, 1);}
+if (input == "one" || input == "two" || input == "three" || input == "four" || input == "five" || input == "six" || input == "seven" || input == "eight" || input == "nine" || input == "zero") {
+if (input == "one") playnumwbs=playnumwbs+"1";
+if (input == "two") playnumwbs=playnumwbs+"2";
+if (input == "three") playnumwbs=playnumwbs+"3";
+if (input == "four") playnumwbs=playnumwbs+"4";
+if (input == "five") playnumwbs=playnumwbs+"5";
+if (input == "six") playnumwbs=playnumwbs+"6";
+if (input == "seven") playnumwbs=playnumwbs+"7";
+if (input == "eight") playnumwbs=playnumwbs+"8";
+if (input == "nine") playnumwbs=playnumwbs+"9";
+if (input == "zero") playnumwbs=playnumwbs+"0";
+if (playnumwbs&lt;0) playnumwbs=playnumwbs+"0";
+nowtime = 10;
+pageIndex=Add(playnumwbs,0);
+}
+if (pageIndex == 0){pageIndex=1;}
+if (pageIndex &gt; maxpage){pageIndex = maxpage;}
+else{executeScript("openxml");}
+redrawDisplay();
+ret="true";
+   }
+}
+else if (pageInfo == "menu")
+{
+if (input == "option_green" || input == "video_stop"){executeScript("changearea");}
+else if (input == "display" || input == "option_red"){executeScript("homemenu");}
+else if (input == "one" || input == "two" || input == "three" || input == "four" || input == "five" || input == "six" || input == "seven" || input == "eight" || input == "nine" || input == "zero"){
+if (input == "one") classUrl="1";
+if (input == "two") classUrl="2";
+if (input == "three") classUrl="3";
+if (input == "four") classUrl="4";
+if (input == "five") classUrl="5";
+if (input == "six") classUrl="6";
+if (input == "seven") classUrl="7";
+if (input == "eight") classUrl="8";
+if (input == "nine") classUrl="9";
+sflink = -1;
+executeScript("openclass");
+redrawDisplay();
+	}
+	else if (input == "left")
+	{
+		ret = "true";
+	}
+	else if (input == "enter")
+	{
+        searchstatus = 0;
+ if (sflink != getFocusMenuIndex()){
+		showIdle();
+		focus = getFocusMenuIndex();
+		selectMenu(focus);
+	}
+	}
+	else if (input == "right")
+	{
+		if (sflink != getFocusMenuIndex()){ 
+		setFocusMenuIndex(sflink );  
+		}   
+}
+}
+ret;
+</onUserInput>
+</mediaDisplay>
+<openclass>
+	tmpmenustr ="温馨提示:翻页键可翻页,数字键直接跳转页面";
+menuTitleArray  = null;
+menulinkArray  = null;
+menuTitleArray  = pushBackStringArray(menuTitleArray, "超级搜索");
+menulinkArray  = pushBackStringArray(menulinkArray, "search");
+menuTitleArray  = pushBackStringArray(menuTitleArray, "切换类型");
+menulinkArray  = pushBackStringArray(menulinkArray, "changetype");
+menuTitleArray  = pushBackStringArray(menuTitleArray, "最近观看");
+menulinkArray  = pushBackStringArray(menulinkArray, "Record");
+menuTitleArray  = pushBackStringArray(menuTitleArray, "我的收藏");
+menulinkArray  = pushBackStringArray(menulinkArray, "fav");
+ 
+currentUrl = ItemMlUrl + classUrl;
+dlxml = loadXMLFile(currentUrl);
+print("dlxml",dlxml);
+cancelIdle();
+if (dlxml != null)
+  {
+    menuSize = getXMLElementCount("filmclasslist", "filmclass","filmclass");
+        filmclassname  = getXMLAttribute("filmclasslist","filmclass",0,"filmclassname");
+    if (menuSize &gt; 0)
+    {
+     counp=0;
+      while(1)
+      {
+        menutitle  = getXMLAttribute("filmclasslist","filmclass","filmclass",counp,"filmclassname");
+        menulink = getXMLAttribute("filmclasslist","filmclass","filmclass",counp,"contenturl");
+        menuTitleArray  = pushBackStringArray(menuTitleArray, menutitle);
+        menulinkArray  = pushBackStringArray(menulinkArray, menulink);
+        counp += 1;
+        if (counp == menuSize)
+        {
+	       break;
+        }
+      }
+   }
+ }
+ menuSize = add(menuSize,4);
+arealist = "";
+from = "";
+areashow = "";
+		fromshow = "";
+sflink = "0";
+ setFocusMenuIndex(4);
+selectMenu(4);
+statusinfo=filmclassname;
+		searchshow = "";
+</openclass>
+<openxml>
+if (nowtime == 1){
+currentdyUrl = xmldyUrl + pageIndex + from + order;
+print("####openxml  ", currentdyUrl);
+dlok = loadXMLFile(currentdyUrl);
+cancelIdle();
+if (dlok != null)
+  {
+    itemSize = getXMLElementCount("wlhdvideo","videolist","video");
+    if (itemSize &gt; 0)
+    {
+      count=0;
+      titleArray = null;
+      linkArray = null;
+      imgArray = null;
+      videoidArray = null;
+      videocidArray = null;
+      classnameArray = null;
+      videomd5Array = null;
+      actorArray = null;
+      directorArray = null;
+      areaArray = null;
+      yearArray = null;
+      videogoldArray = null;
+      videoplayArray = null;
+      vidclassArray = null;
+      introArray = null;
+      playcountArray = null;
+      maxpage  = getXMLAttribute("wlhdvideo","pageinfo",0,"pagecount");
+	  picurl  = getXMLAttribute("wlhdvideo","pageinfo",0,"picurl");
+	  videoCls  = getXMLAttribute("wlhdvideo","pageinfo",0,"video");
+      while(1)
+      {
+        title  = getXMLAttribute("wlhdvideo","videolist","video",count,"videoname");
+        link = getXMLText("wlhdvideo","videolist","video",count,"reurl");
+        thumbnail = getXMLAttribute("wlhdvideo","videolist","video",count,"pic");
+        videoid = getXMLAttribute("wlhdvideo","videolist","video",count,"videoid");
+        videocid = getXMLAttribute("wlhdvideo","videolist","video",count,"videocid");
+        classname = getXMLAttribute("wlhdvideo","videolist","video",count,"classname");
+        videomd5 = getXMLAttribute("wlhdvideo","videolist","video",count,"videomd5");
+        actor = getXMLAttribute("wlhdvideo","videolist","video",count,"actor");
+        director = getXMLAttribute("wlhdvideo","videolist","video",count,"director");
+        area = getXMLAttribute("wlhdvideo","videolist","video",count,"area");
+        year = getXMLAttribute("wlhdvideo","videolist","video",count,"year");
+        videogold = getXMLAttribute("wlhdvideo","videolist","video",count,"videogold");
+        videoplay = getXMLAttribute("wlhdvideo","videolist","video",count,"videoplay");
+        vidclass = getXMLAttribute("wlhdvideo","videolist","video",count,"vidclass");
+        intro = getXMLText("wlhdvideo","videolist","video",count,"intro");
+        playcount = getXMLElementCount("wlhdvideo","videolist","video",count,"coderate");
+        titleArray  = pushBackStringArray(titleArray, title);
+        linkArray  = pushBackStringArray(linkArray, link);
+		
+		thumbnail = thumbnail + vodPoster(videoid) + ".jpg";
+        imgArray = pushBackStringArray(imgArray, thumbnail);
+        videoidArray = pushBackStringArray(videoidArray, videoid);
+        videocidArray = pushBackStringArray(videocidArray, videocid);
+        classnameArray = pushBackStringArray(classnameArray, classname);
+        videomd5Array = pushBackStringArray(videomd5Array, videomd5);
+        actorArray = pushBackStringArray(actorArray, actor);
+        directorArray = pushBackStringArray(directorArray, director);
+        areaArray = pushBackStringArray(areaArray, area);
+        yearArray = pushBackStringArray(yearArray, year);
+        videogoldArray = pushBackStringArray(videogoldArray, videogold);
+        videoplayArray = pushBackStringArray(videoplayArray, videoplay);
+        vidclassArray = pushBackStringArray(vidclassArray, vidclass);
+        introArray = pushBackStringArray(introArray, intro);
+        playcountArray = pushBackStringArray(playcountArray, playcount);
+        count += 1;
+        if (count == itemSize)
+        {
+	       break;
+        }
+      }
+      playnumwbs = "";
+      setItemFocus(0);
+      setFocusItemIndex(0);
+      redrawDisplay();
+      null;
+    }
+  }
+		typeshow = ">>"+getStringArrayAt(menuTitleArray, sflink);
+}
+</openxml>
+<openfav>
+	print("exec openfav   ");
+	tmpmenustr ="温馨提示:按停止键可以删除记录和收藏哦!";
+statusinfo = "收藏";
+		typeshow = "";
+		areashow = "";
+		fromshow = "";
+		areaArray = null;
+		yearArray = null;
+		videogoldArray = null;
+		directorArray = null;
+		actorArray = null;
+		ordershow = getStringArrayAt(menuTitleArray, getFocusMenuIndex());
+if(getStringArrayAt(menulinkArray, getFocusMenuIndex())=="Record"){	
+print("exec openfav  Record");
+k=0;
+itemSize=0;
+titleArray=null;
+linkArray=null;
+imgArray=null;
+vidclsArray=null;
+jltitlePath = uipath+"wlhdRecord_title.dat";
+jlimgPath = uipath+"wlhdRecord_img.dat";
+jllinkPath = uipath+"wlhdRecord_link.dat";
+jlvidclsPath = uipath+"wlhdRecord_vidcls.dat";
+readtitleArray=readStringFromFile(jltitlePath);
+readimgArray=readStringFromFile(jlimgPath);
+readlinkArray=readStringFromFile(jllinkPath);
+readvidclsArray=readStringFromFile(jlvidclsPath);
+while (getStringArrayAt(readlinkArray, k) != null) {
+k=k+1;
+}
+itemSize=k;
+k=k-1;
+while (getStringArrayAt(readlinkArray, k) != null) {
+titleArray=pushBackStringArray(titleArray, getStringArrayAt(readtitleArray, k));
+imgArray=pushBackStringArray(imgArray, getStringArrayAt(readimgArray, k));
+linkArray=pushBackStringArray(linkArray, getStringArrayAt(readlinkArray, k));
+vidclsArray=pushBackStringArray(vidclsArray, getStringArrayAt(readvidclsArray, k));
+k=k-1;
+}
+setItemFocus(0);
+setFocusItemIndex(0);
+redrawDisplay();
+}else if(getStringArrayAt(menulinkArray, getFocusMenuIndex())=="fav"){
+print("exec openfav  fav");
+k=0;
+itemSize=0;
+titleArray=null;
+linkArray=null;
+imgArray=null;
+sctitlePath = uipath+"wlhdfav_title.dat";
+scimgPath = uipath+"wlhdfav_img.dat";
+sclinkPath = uipath+"wlhdfav_link.dat";
+scvidclsPath = uipath+"wlhdfav_vidcls.dat"; 
+readtitleArray=readStringFromFile(sctitlePath);
+readimgArray=readStringFromFile(scimgPath);
+readlinkArray=readStringFromFile(sclinkPath);
+readvidclsArray=readStringFromFile(scvidclsPath);
+while (getStringArrayAt(readlinkArray, k) != null) {
+k=k+1;
+}
+itemSize=k;
+k=k-1;
+while (getStringArrayAt(readlinkArray, k) != null) {
+titleArray=pushBackStringArray(titleArray, getStringArrayAt(readtitleArray, k));
+imgArray=pushBackStringArray(imgArray, getStringArrayAt(readimgArray, k));
+linkArray=pushBackStringArray(linkArray, getStringArrayAt(readlinkArray, k));
+vidclsArray=pushBackStringArray(vidclsArray, getStringArrayAt(readvidclsArray, k));
+k=k-1;
+}
+setItemFocus(0);
+setFocusItemIndex(0);
+redrawDisplay();
+}
+else if(getStringArrayAt(menulinkArray, getFocusMenuIndex())=="mv")
+{ print("exec openfav  mv");
+k=0;
+itemSize=0;
+titleArray=null;
+linkArray=null;
+imgArray=null;
+sctitlePath = uipath+"musicfav1.dat";
+sclinkPath = uipath+"musicfav2.dat";
+readtitleArray=readStringFromFile(sctitlePath);
+readlinkArray=readStringFromFile(sclinkPath);
+while (getStringArrayAt(readlinkArray, k) != null) {
+k=k+1;
+}
+itemSize=k;
+k=k-1;
+while (getStringArrayAt(readlinkArray, k) != null) {
+titleArray=pushBackStringArray(titleArray, getStringArrayAt(readtitleArray, k));
+linkArray=pushBackStringArray(linkArray, getStringArrayAt(readlinkArray, k));
+k=k-1;
+}
+setItemFocus(0);
+setFocusItemIndex(0);
+redrawDisplay();
+} 
+else 
+{ 
+} 
+</openfav>
+<homemenu>
+vodtypepath=uipath +  "wlhd_vodtype.rss";
+		Flagvodtype= readStringFromFile(vodtypepath);
+		if (Flagvodtype == null )dldUrl2File(downrss + "../rss/vodtype.rss",vodtypepath);
+vodtype = doModalRss(vodtypepath);
+if(vodtype != NULL) {
+classUrl = vodtype;
+executeScript("openclass");
+}
+</homemenu>
+<caidanmenu>
+turnorder=uipath +  "turnorder.rss";
+		Flagorder= readStringFromFile(turnorder);
+		if (Flagorder == null )dldUrl2File(downrss + "../rss/turnorder.rss",turnorder);
+ordertype = doModalRss(turnorder);
+if(ordertype != NULL &amp;&amp; ordertype != order) {
+order = ordertype;
+ordershow = "    "+getEnv("ordertitleID");
+		
+writeStringToFile( preOrderPath,order);		
+executeScript("openxml");
+}
+</caidanmenu>
+<changearea>
+pageIndex = 1;
+changeareapath=uipath +  "wlhd_changearea.rss";
+		Flagchangearea= readStringFromFile(changeareapath);
+		if (Flagchangearea == null )dldUrl2File(downrss + "../rss/changearea.rss",changeareapath);
+changearea = doModalRss(changeareapath);
+if(changearea != NULL &amp;&amp; changearea != arealist) {
+arealist = changearea;
+		areashow = ">>"+getEnv("areatitleID");
+executeScript("openxml");
+}
+</changearea>
+<changefrom>
+pageIndex = 1;
+changefrompath=uipath +  "veryhd_changefrom.rss";
+		Flagchangefrom= readStringFromFile(changefrompath);
+		if (Flagchangefrom == null )dldUrl2File("http://ims.wlhd.net/order.php?link=from",changefrompath);
+changefrom = doModalRss(changefrompath);
+if(changefrom != NULL &amp;&amp; changefrom != from) {
+from = changefrom;
+		fromshow = ">>"+getEnv("fromtitleID");
+executeScript("openxml");
+}
+</changefrom>
+<opensearch>
+arealist = "";
+		areashow = "";
+		fromshow = "";
+from = "";
+searchpath=uipath +  "youku_search.rss";
+		Flagsearch= readStringFromFile(searchpath);
+		if (Flagsearch == null )dldUrl2File(downrss + "../rss/youku_search.rss",searchpath);
+searchwdtmp = doModalRss(searchpath);
+searchwd = urlEncode(searchwdtmp);
+if(searchwd !=null &amp;&amp; searchwd !="" )
+{
+classname = "搜索";
+searchstatus = 0;
+setEnv("keyword",searchwdtmp);
+
+print("00000000000000000000000000000000000000000000000000000");
+
+searchalllink = downrss + "video_list_xml.php?video=&amp;key=" + searchwd;
+searchmovielink = downrss + "video_list_xml.php?video=mov&amp;key=" + searchwd;
+searchtvlink = downrss + "video_list_xml.php?video=tvb&amp;key=" + searchwd;
+searchzylink = downrss + "video_list_xml.php?video=show&amp;key=" + searchwd;
+searchdmlink = downrss + "video_list_xml.php?video=comic&amp;key=" + searchwd;
+ 
+     menuTitleArray = null;
+     menulinkArray = null;
+        menuTitleArray  = pushBackStringArray(menuTitleArray, "搜索全部");
+        menulinkArray  = pushBackStringArray(menulinkArray, searchalllink);
+        menuTitleArray  = pushBackStringArray(menuTitleArray, "搜索电影");
+        menulinkArray  = pushBackStringArray(menulinkArray, searchmovielink);
+        menuTitleArray  = pushBackStringArray(menuTitleArray, "搜索电视剧");
+        menulinkArray  = pushBackStringArray(menulinkArray, searchtvlink);
+        menuTitleArray  = pushBackStringArray(menuTitleArray, "搜索综艺");
+        menulinkArray  = pushBackStringArray(menulinkArray, searchzylink);
+        menuTitleArray  = pushBackStringArray(menuTitleArray, "搜索动漫");
+        menulinkArray  = pushBackStringArray(menulinkArray, searchdmlink);
+         
+        menuTitleArray  = pushBackStringArray(menuTitleArray, "返回");
+        menulinkArray  = pushBackStringArray(menulinkArray, "return");
+        menuSize = 6;
+selectMenu(0);
+ setFocusMenuIndex(0);
+		searchshow = "--关键词:" + searchwdtmp;
+statusinfo = "搜索";
+filmclassname = "搜索";
+	tmpmenustr ="温馨提示:搜索支持首字母和中文,结果支持筛选和排序哦!";
+redrawDisplay();
+}
+else 
+{
+print("1111111111111111111111111111111111111111111111111111111111111");
+ 
+ searchstatus = 1;
+ setFocusMenuIndex(0);
+redrawDisplay();
+}
+ </opensearch>
+<menu_template>
+<onClick>
+sflink = getFocusMenuIndex();
+menulinkstatus=getStringArrayAt(menulinkArray, sflink);
+
+maxpage = 0;
+pageIndex = 1;
+if (menulinkstatus=="Record" || menulinkstatus=="fav")
+{
+executeScript("openfav");
+}
+else if (menulinkstatus=="search" &amp;&amp; 0 == searchstatus)
+{
+print("33333333333333333333333333333333333333333333333333333333333");
+        executeScript("opensearch");
+}
+else if (menulinkstatus=="changetype")
+{
+executeScript("homemenu");
+}
+else if (menulinkstatus=="return")
+{
+executeScript("openclass");
+}
+else
+{
+statusinfo=filmclassname;
+		ordershow = "    "+getEnv("ordertitleID");
+xmldyUrl = menulinkstatus +"&amp;pn=";
+executeScript("openxml");
+}
+</onClick>
+</menu_template>
+<item_template>
+<onClick>
+Url = null;
+	contentUrl = null;
+itemIndex = getFocusItemIndex();
+menuIndex = getFocusMenuIndex();
+menulinkstatus=getStringArrayAt(menulinkArray, menuIndex);
+if (menulinkstatus=="Record" || menulinkstatus=="fav" )
+{	print("wlhdfavid---page.vidClass--video.vidcls---", getStringArrayAt(linkArray , -1) , getStringArrayAt(vidclassArray , -1) , getStringArrayAt(vidclsArray , -1) );
+	setEnv("wlhdfavClass",getStringArrayAt(vidclassArray , -1));  
+	setEnv("wlhdfavid",getStringArrayAt(linkArray , -1));  
+	setEnv("wlhd_vidcls",getStringArrayAt(vidclsArray , -1));  
+	moviefavpath =  uipath + "wlhd_moviefav.rss";
+	Flagmoviefav = readStringFromFile(moviefavpath);
+	if (Flagmoviefav == null )
+		dldUrl2File(downrss + "../rss/moviefav.rss",moviefavpath);
+	cancelIdle();
+	moviefavpath;
+}
+else
+{
+if(itemIndex != null)
+{
+			allsites = downrss + "get_sites.php?id=" + getStringArrayAt(videoidArray , itemIndex) + "&amp;video=" + getStringArrayAt(vidclassArray , itemIndex);
+			print("allsitesallsites" , allsites);
+			dlallsites = loadXMLFile(allsites);
+			if ( dlallsites == null)
+			{
+				print("##  retry");
+				dlallsites = loadXMLFile(allsites);
+			}
+			print("##dlxmlallsites",dlallsites);
+			cancelIdle();
+			ContentSize = getXMLElementCount("wlhdvideo","videolist","video",0,"coderate"); 
+			print("===ContentSize" , ContentSize);
+			
+		  Url = getStringArrayAt(titleArray , itemIndex); 
+		  Url = Url + "&#x000a;" + getStringArrayAt(linkArray , itemIndex); 
+		  Url = Url + "&#x000a;" + getStringArrayAt(imgArray , itemIndex);
+		  Url = Url + "&#x000a;" + ContentSize ; 
+		  Url = Url + "&#x000a;" + getStringArrayAt(videoidArray , itemIndex);
+		  Url = Url + "&#x000a;" + getStringArrayAt(videocidArray, itemIndex);
+		  Url = Url + "&#x000a;" + getStringArrayAt(classnameArray, itemIndex); 
+		  Url = Url + "&#x000a;" + getStringArrayAt(videomd5Array, itemIndex); 
+		  Url = Url + "&#x000a;" + getStringArrayAt(actorArray , itemIndex); 
+		  Url = Url + "&#x000a;" + getStringArrayAt(directorArray , itemIndex);
+		  Url = Url + "&#x000a;" + getStringArrayAt(areaArray , itemIndex); 
+		  Url = Url + "&#x000a;" + getStringArrayAt(yearArray, itemIndex); 
+		  Url = Url + "&#x000a;" + getStringArrayAt(videogoldArray , itemIndex); 
+		  Url = Url + "&#x000a;" + getStringArrayAt(videoplayArray , itemIndex); 
+		  Url = Url + "&#x000a;" + getStringArrayAt(vidclassArray , itemIndex); 
+		  Url = Url + "&#x000a;" + getStringArrayAt(introArray , itemIndex); 
+		  urlFile = getStoragePath("tmp");
+		  urlFile = urlFile + "wlhd_filminfo.dat";  
+		  writeStringToFile(urlFile, Url);
+		   
+   
+			
+			
+  
+		  setEnv("curr_play_type",  getStringArrayAt(vidclassArray , itemIndex) );	
+  
+{
+	contentcount=0;
+		  playername = null;
+		  playersite = null;
+while(1)
+  {
+		if (ContentSize == 0)
+		{
+			break;
+		}
+			CICount = 0;
+			contentUrl = null;
+			playlistsize = getXMLElementCount("wlhdvideo","videolist","video",0,"coderate",contentcount,"videourl");
+			pn = getXMLAttribute("wlhdvideo", "videolist", "video",0,"coderate",contentcount,"playname");
+			playername = playername + pn+ "&#x000a;" ;
+			
+			tmpPlayer = getXMLAttribute("wlhdvideo", "videolist", "video",0,"coderate",contentcount,"player");
+			playersite = playersite + tmpPlayer+ "&#x000a;" ;
+			
+			print("=playlistsize" , playlistsize);
+			print("=contentcount" , contentcount);
+			
+		  while(1)  
+		  {
+			if (playlistsize == 0) 
+			{ 
+				 
+				break; 
+			}
+			  CI = getXMLAttribute("wlhdvideo", "videolist", "video",0,"coderate",contentcount,"videourl", CICount, "playtitle");
+			  contentUrl = contentUrl + CI+ "&#x000a;" ;
+			  PlayUrl = getXMLAttribute("wlhdvideo", "videolist", "video",0,"coderate",contentcount,"videourl", CICount, "playurl");
+              contentUrl = contentUrl+downrss + "resolve.php?url="+ PlayUrl+ "&#x000a;";
+			  CICount += 1;
+			  if (CICount == playlistsize)
+			  {
+				  break;
+			  }
+		  }
+
+		  TmpFile = "wlhd_ContentDetail"+contentcount+".dat";  
+		  urlFile = getStoragePath("tmp");
+		  urlFile = urlFile + TmpFile;
+		  
+		 writeStringToFile(urlFile, contentUrl);
+
+		 if (playlistsize == 0) 
+		{ 
+			deletefile(  urlFile );
+			print("== must do for src select"   ); 
+		}
+			
+		  contentcount += 1;
+		  if  (contentcount == ContentSize)
+			{break;}
+   } 
+   
+		  playTmpFile = "wlhd_playname.dat";  
+		  playurlFile = getStoragePath("tmp");
+		  playurlFile = playurlFile + playTmpFile;
+		  writeStringToFile(playurlFile, playername);
+		
+		  playurlFile = getStoragePath("tmp")   + "wlhd_play_sites.dat";
+		  writeStringToFile(playurlFile, playersite);		
+}
+
+infourl =  uipath + "infourl.rss";
+Flaginfourl = readStringFromFile(infourl);
+if (Flaginfourl == null )dldUrl2File(downrss + "../rss/infourl.rss",infourl);
+infourl;
+  }
+  else
+  {
+	  null;
+  }
+}
+</onClick>
+</item_template>
+<channel>
+<title>wlhd</title>
+<link>wlhd2.6_program.rss</link>
+
+<itemSize>
+	<script>
+		itemSize;
+	</script>
+</itemSize>
+
+<menuSize>
+	<script>
+		menuSize;
+	</script>
+</menuSize>
+
+</channel>
+</rss>
+

@@ -1,0 +1,108 @@
+﻿<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<script>
+	tempdir = "/usr/local/etc/dvdplayer/vst_";
+	favdir = "/usr/local/etc/dvdplayer/myfav_";
+	
+	uipath = getEnv("uipath");
+	tempdir = uipath;
+	favdir = uipath + "fav";
+	
+	if (UI_ID == null)
+	{
+		UI_ID = getEnv("BGUI_ID");
+		if (UI_ID == null) UI_ID = "";
+	}
+</script>
+<script>
+	playdate = 0;
+	totalSize = 0;
+	NameArray = null;
+	titname = getEnv("playName");
+	if (titname == null || titname == "null") titname = "播放列表";
+	playNamePath = getStoragePath("tmp") + "playlist.dat";
+	playNameArray = readStringFromFile(playNamePath);
+	while (getStringArrayAt(playNameArray, totalSize) != null)
+	{
+		NameArray = pushBackStringArray(NameArray, getStringArrayAt(playNameArray, totalSize));
+		totalSize += 1;
+	}
+	playid = getEnv("PlayListID");
+	if (playid == null) playid = 0;
+	setFocusItemIndex(playid);
+</script>
+
+<onEnter>
+	setRefreshTime(1000);
+</onEnter>
+
+<onExit>
+	setRefreshTime(-1);
+</onExit>
+
+<onRefresh>
+	if (playdate &gt; 15) postMessage("return");
+	playdate += 1;
+</onRefresh>
+
+<mediaDisplay name=threePartsView
+	viewAreaXPC=14
+	viewAreaYPC=15
+	viewAreaWidthPC=22
+	viewAreaHeightPC=70
+	itemBackgroundColor=6:12:72
+	backgroundColor=-1:-1:-1
+	rollItems=yes
+	fontSize=15
+	itemImageXPC=67
+	itemImageYPC=32
+	itemXPC=67
+	itemYPC=32
+	itemHeightPC=10
+	itemWidthPC=94
+	itemPerPage=8
+	showHeader=no
+	showDefaultInfo=no>
+	<backgroundDisplay name="vst_playlist_2012110115435">
+	<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100><script>tempdir + "tvbg.png";</script></image>
+	</backgroundDisplay>
+	<itemDisplay>
+		<text offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 fontSize=16>
+			<script>getStringArrayAt(NameArray, -1);</script>
+		</text>
+	</itemDisplay>
+	<onUserInput>
+		playdate = 0;
+		ret = "false";
+		playid = getFocusItemIndex();
+		input = currentUserInput();
+		if (input == "video_stop" || input == "return" || input == "display" || input == "option_green") ret = "return";
+		else if (input == "video_play" || input == "enter")
+		{
+			setReturnString(playid);
+			ret = "return";
+		}
+		else if (input == "left" || input == "pageup")
+		{
+			playid = minus(playid, 8);
+			if (playid &lt; 0) playid=0;
+			setFocusItemIndex(playid);
+			redrawDisplay();
+			ret = "true";
+		}
+		else if (input == "right" || input == "pagedown")
+		{
+			playid = add(playid, 8);
+			if (playid &gt; minus(totalSize,1)) playid = minus(totalSize,1);
+			setFocusItemIndex(playid);
+			redrawDisplay();
+			ret = "true";
+		}
+		ret;
+	</onUserInput>
+</mediaDisplay>
+<channel>
+<itemSize>
+<script>totalSize;</script>
+</itemSize>
+</channel>
+</rss>

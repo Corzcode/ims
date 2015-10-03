@@ -1,0 +1,428 @@
+﻿<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<script>
+	uipath = getEnv("uipath");
+	downrss=getEnv("downrss");
+	downwj=getEnv("downwj");
+	sw_custom=getEnv("sw_custom");
+	
+
+    tmptmp = getStoragePath("tmp");
+	cateCodeArray = null;
+	cateNameArray = null;
+	templateCodeArray = null;
+	cateFocusIconArray = null;
+	cateUnfocusIconArray = null;
+	
+
+cateCode = "movie";
+	cateCodeArray = pushBackStringArray(cateCodeArray, cateCode);
+	cateName = "电影";
+	cateNameArray = pushBackStringArray(cateNameArray, cateName);
+	templateCode = "movie";
+	templateCodeArray = pushBackStringArray(templateCodeArray, templateCode);
+	cateFocusIconArray = pushBackStringArray(cateFocusIconArray, uipath + "mov_focus.png");
+	cateUnfocusIconArray = pushBackStringArray(cateUnfocusIconArray, uipath + "mov_unfocus.png");
+	
+ 
+cateCode = "tvb";
+	cateCodeArray = pushBackStringArray(cateCodeArray, cateCode);
+	cateName = "电视剧";
+	cateNameArray = pushBackStringArray(cateNameArray, cateName);
+	templateCode = "movie";
+	templateCodeArray = pushBackStringArray(templateCodeArray, templateCode);
+	cateFocusIconArray = pushBackStringArray(cateFocusIconArray, uipath + "tvb_focus.png");
+	cateUnfocusIconArray = pushBackStringArray(cateUnfocusIconArray, uipath + "tvb_unfocus.png");
+	
+cateCode = "comic";
+	cateCodeArray = pushBackStringArray(cateCodeArray, cateCode);
+	cateName = "动漫";
+	cateNameArray = pushBackStringArray(cateNameArray, cateName);
+	templateCode = "movie";
+	templateCodeArray = pushBackStringArray(templateCodeArray, templateCode);
+	cateFocusIconArray = pushBackStringArray(cateFocusIconArray, uipath + "comic_focus.png");
+	cateUnfocusIconArray = pushBackStringArray(cateUnfocusIconArray, uipath + "comic_unfocus.png");
+
+cateCode = "show";
+	cateCodeArray = pushBackStringArray(cateCodeArray, cateCode);
+	cateName = "综艺";
+	cateNameArray = pushBackStringArray(cateNameArray, cateName);
+	templateCode = "movie";
+	templateCodeArray = pushBackStringArray(templateCodeArray, templateCode);
+	cateFocusIconArray = pushBackStringArray(cateFocusIconArray, uipath + "show_focus.png");
+	cateUnfocusIconArray = pushBackStringArray(cateUnfocusIconArray, uipath + "show_unfocus.png");
+	
+	
+ 
+cateCode = "huikan";
+	cateCodeArray = pushBackStringArray(cateCodeArray, cateCode);
+	cateName = "30天回播";
+	cateNameArray = pushBackStringArray(cateNameArray, cateName);	
+	templateCode = "huikan";
+	templateCodeArray = pushBackStringArray(templateCodeArray, templateCode);
+	cateFocusIconArray = pushBackStringArray(cateFocusIconArray, uipath + "huikan_focus.png");
+	cateUnfocusIconArray = pushBackStringArray(cateUnfocusIconArray, uipath + "huikan_unfocus.png");
+ 
+	itemSize = 5;
+	setItemFocus(0);
+	setFocusItemIndex(0);
+	
+	info_idx = 0;
+</script>
+<onEnter>
+redrawDisplay();
+
+riliPath = getStoragePath("tmp") + "rili_info";
+dldUrl2File(downrss+ "rili.php", riliPath );
+	
+setRefreshTime(2000);
+</onEnter>
+
+<onExit>
+setEnv("wlhdnewhome", "exit");
+setRefreshTime(-1);
+</onExit>
+
+<onRefresh>
+redrawDisplay();
+
+info_idx = info_idx + 1;
+if (info_idx == 3) {
+	info_idx = 0;
+}
+
+setRefreshTime(15000);
+</onRefresh>
+
+<mediaDisplay name=photoView
+   itemBackgroundColor=-1:-1:-1
+   backgroundColor=-1:-1:-1
+   
+   sideTopHeightPC=0
+   sideBottomHeightPC=0   
+   
+   bottomYPC=100
+      
+   rowCount=1
+   columnCount=5
+   fontSize=24
+  
+   itemPerPage=5
+   itemBorderPC=0
+   itemOffsetXPC=10
+   itemGapXPC=1.5
+   itemGapYPC=0
+   itemWidthPC=14.06
+   itemHeightPC=31.25
+    
+   centerYPC=35
+   centerHeightPC=100 
+   focusItem="1"
+   showHeader="no"  
+   showDefaultInfo="no"	 
+   
+   idleImageXPC=85
+idleImageYPC=86
+idleImageWidthPC=3.2
+idleImageHeightPC=5.5
+>
+	<idleImage>image/loading1.png</idleImage>
+	<idleImage>image/loading2.png</idleImage>
+	<idleImage>image/loading3.png</idleImage>
+	<idleImage>image/loading4.png</idleImage>
+	<idleImage>image/loading5.png</idleImage>
+	<idleImage>image/loading6.png</idleImage> 
+	<idleImage>image/loading7.png</idleImage>
+	<idleImage>image/loading8.png</idleImage>
+	<backgroundDisplay name=wlhdhomebg>
+		<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100>
+			<script>
+				uipath + "bg.png";
+			</script>
+		</image>
+	</backgroundDisplay>
+	<image offsetXPC=65 offsetYPC=10 widthPC=20.39 heightPC=9.03>
+		<script>
+			uipath + "logo.png";
+		</script>
+	</image>
+<!--  <text offsetXPC=15 offsetYPC=88 widthPC=100 heightPC=5  fontSize=15>本站仅做RSS聚合 资源均来自互联网 喜欢请购买正版 </text>    -->
+	
+<text redraw="yes" offsetXPC=0 offsetYPC=15 widthPC=100 heightPC=20 lines=1 fontSize=55 backgroundColor=-1:-1:-1 foregroundColor=255:255:255 align=center useBackgroundSurface="yes">
+<script>
+			str = getStringArrayAt(cateNameArray , -1);
+			str;
+	</script>
+</text>
+	
+
+<itemDisplay>
+	<text offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 useBackgroundSurface=yes/>
+	<image>
+	<offsetXPC>
+	<script>
+		status = getDrawingItemState();
+		if (status == "focus")
+			"0";
+		else
+			"3";
+	</script>
+	</offsetXPC>
+	<offsetYPC>
+	<script>
+		status = getDrawingItemState();
+		if (status == "focus")
+			"0";
+		else
+			"3";
+	</script>
+	</offsetYPC>
+	<widthPC>
+	<script>
+		status = getDrawingItemState();
+		if (status == "focus")
+			"100";
+		else
+			"94";
+	</script>
+	</widthPC>
+	<heightPC>
+	<script>
+		status = getDrawingItemState();
+		if (status == "focus")
+			"80";
+		else
+			"77";
+	</script>
+	</heightPC>
+	<script>
+	status = getDrawingItemState();
+	if (status == "focus")
+	{
+		getStringArrayAt(cateFocusIconArray, -1);
+	}
+	else
+	{
+		getStringArrayAt(cateUnfocusIconArray, -1);
+	}
+	</script>
+	</image>
+	
+	<text align=center offsetXPC=0 offsetYPC=85 widthPC=100 heightPC=14.9 backgroundColor=-1:-1:-1 foregroundColor=0:0:0>
+		<fontSize>
+		<script>
+		if (getDrawingItemState() == "focus")
+			"21";
+		else
+			"20";
+		</script>
+		</fontSize>
+		
+		<foregroundColor>
+		<script>
+		if(getDrawingItemState() == "focus")
+		{
+			fg="255:255:0" ;
+		}
+		else
+		{
+			fg="255:255:255" ;
+		}
+		fg;
+		</script>
+		</foregroundColor>
+		
+		<script>
+			str = getStringArrayAt(cateNameArray , -1);
+			str;
+		</script>
+	</text>
+
+</itemDisplay>
+
+<onUserInput>
+ret="false";
+userInput = currentUserInput();
+if (userInput == "video_stop") executeScript("delcached");
+else if (userInput == "return"){
+setEnv("wlhdnewhome", "exit");
+ret="return";
+}
+ret;
+</onUserInput>
+
+<text offsetXPC=0 offsetYPC=86 widthPC=100 heightPC=9 fontSize=18 backgroundColor=-1:-1:-1 foregroundColor=255:255:255 align=center redraw=yes> 
+<script>
+	dispInfo = "";
+	bbs = "欢迎登陆蓝莓论坛交流 http://bbs.blueberry-tek.com ";
+	weibo = "蓝莓X3 上市啦, 双核安卓, 独家安装有 蓝莓直播完整版";
+	qun = "蓝莓机顶盒QQ群 251398171 , 论坛 http://bbs.blueberry-tek.com ";
+	riliPath = getStoragePath("tmp") + "rili_info";
+	riliInfo = readStringFromFile(riliPath);
+	if (riliInfo == null) {
+		dldUrl2File(downrss+ "rili.php", riliPath );
+		riliInfo = readStringFromFile(riliPath);
+	}	
+	
+	if (sw_custom == "fireplayer") {
+		if (info_idx == 0) {
+			dispInfo = qun; 
+		}
+		else if (info_idx == 1) {
+			dispInfo = weibo; 
+		}
+		else {
+			dispInfo = riliInfo;
+		}
+	}
+	else {
+		dispInfo = riliInfo;
+	}
+	
+	dispInfo;
+</script>
+</text>
+
+</mediaDisplay>
+
+
+<item_template>
+	<onClick>
+		focus = getFocusItemIndex();
+		statusfocus =getStringArrayAt(cateCodeArray,focus);
+		if (statusfocus == "fav")
+		{
+		favpath = uipath + "wlhdhd_fav.rss";
+		if (readStringFromFile(favpath) == null )dldUrl2File(downrss + "../rss/wlhd_fav.rss",favpath);
+		favpath;
+		}
+		else if (statusfocus == "mtv")
+		{
+		mtvpath = uipath + "MTVlist.rss";
+		if (readStringFromFile(mtvpath) == null )dldUrl2File(downrss + "../rss/mtvlist.rss",mtvpath);
+		mtvpath;
+		}
+		else if (statusfocus == "huikan")
+		{
+		huibopath = uipath + "huibo.rss";
+		if (readStringFromFile(huibopath) == null )dldUrl2File(downrss + "../rss/huibo.rss",huibopath);
+		huibopath;
+		}
+		else if (statusfocus == "movie")
+		{
+		setEnv("videoClassURL", "1");
+		programpath=uipath + "program.rss";
+		if (readStringFromFile(programpath) == null )dldUrl2File(downrss + "../rss/program.rss",programpath);
+		programpath;
+		}
+		else if (statusfocus == "tvb")
+		{
+		setEnv("videoClassURL", "2");
+		programpath=uipath + "program.rss";
+		if (readStringFromFile(programpath) == null )dldUrl2File(downrss + "../rss/program.rss",programpath);
+		programpath;
+		}
+		else if (statusfocus == "comic")
+		{
+		setEnv("videoClassURL", "3");
+		programpath=uipath + "program.rss";
+		if (readStringFromFile(programpath) == null )dldUrl2File(downrss + "../rss/program.rss",programpath);
+		programpath;
+		}
+		else if (statusfocus == "show")
+		{
+		setEnv("videoClassURL", "4");
+		programpath=uipath + "program.rss";
+		if (readStringFromFile(programpath) == null )dldUrl2File(downrss + "../rss/program.rss",programpath);
+		programpath;
+		}		
+	</onClick>
+</item_template>
+
+<delcached>
+deletefile(uipath + "logo.png");                   
+deletefile(uipath + "anime_focus.fsp");            
+deletefile(uipath + "anime_logo.png");             
+deletefile(uipath + "anime_unfocus.fsp");          
+deletefile(uipath + "arrow_left.png");             
+deletefile(uipath + "arrow_left_bg.fsp");          
+deletefile(uipath + "arrow_right.png");            
+deletefile(uipath + "arrow_right_bg.fsp");         
+deletefile(uipath + "confirm_bg.png");             
+deletefile(uipath + "display_info.fsp");           
+deletefile(uipath + "dl_focus.png");               
+deletefile(uipath + "dl_unfocus.png");             
+deletefile(uipath + "dlm_focus.png");              
+deletefile(uipath + "dlm_unfocus.fsp");            
+deletefile(uipath + "guide_bg.fsp");               
+deletefile(uipath + "info1.png");                  
+deletefile(uipath + "intro_bg.fsp");               
+deletefile(uipath + "iptvlistbg.png");             
+deletefile(uipath + "left_arrow_down_focus.png");  
+deletefile(uipath + "left_arrow_down_unfocus.fsp");
+deletefile(uipath + "left_arrow_up_focus.png");    
+deletefile(uipath + "left_arrow_up_unfocus.fsp");  
+deletefile(uipath + "left_focus_bg.png");          
+deletefile(uipath + "left_inactive_bg.png");       
+deletefile(uipath + "loading1.png");               
+deletefile(uipath + "loading2.png");               
+deletefile(uipath + "loading3.png");               
+deletefile(uipath + "loading4.png");               
+deletefile(uipath + "loading5.png");               
+deletefile(uipath + "loading6.png");               
+deletefile(uipath + "loading7.png");               
+deletefile(uipath + "loading8.png");               
+deletefile(uipath + "movie_bg.fsp");               
+deletefile(uipath + "movie_focus.png");            
+deletefile(uipath + "movie_focus_bg.png");         
+deletefile(uipath + "movie_intro_bg.fsp");         
+deletefile(uipath + "movie_logo.png");             
+deletefile(uipath + "movie_right_bg.fsp");         
+deletefile(uipath + "movie_unfocus.png");          
+deletefile(uipath + "movie_unfocus_bg.png");       
+deletefile(uipath + "num_focus.png");              
+deletefile(uipath + "num_unfocus.png");            
+deletefile(uipath + "progressbar_01.png");         
+deletefile(uipath + "progressbar_02.png");         
+deletefile(uipath + "seek_bar_bg.png");            
+deletefile(uipath + "seek_bar_fg.png");            
+deletefile(uipath + "thunder_dl_bg.fsp");          
+deletefile(uipath + "thunder_dl_focus.png");       
+deletefile(uipath + "thunder_focus.png");          
+deletefile(uipath + "thunderdl_focus.fsp");        
+deletefile(uipath + "thunderdl_unfocus.fsp");      
+deletefile(uipath + "tv_focus.png");               
+deletefile(uipath + "tv_logo.png");                
+deletefile(uipath + "tv_unfocus.png");             
+deletefile(uipath + "variety_focus.png");          
+deletefile(uipath + "variety_logo.png");           
+deletefile(uipath + "variety_unfocus.png");
+deletefile(uipath + "info_item_focus.png");      
+deletefile(uipath + "info_item_unfocus.png");               
+deletefile(uipath + "newtv_bg.png");                
+deletefile(uipath + "newtv_item_focus.png");             
+deletefile(uipath + "newtv_menu_focus.png");          
+deletefile(uipath + "submit_bg.png");  
+deletefile(uipath + "tvui.gif"); 
+deletefile(uipath + "fenbian_bg.png");          
+deletefile(uipath + "menu_focus.png");  
+
+deletefile(uipath + "IPtvLIst.rss");
+deletefile(uipath + "playlist.rss");
+deletefile(uipath + "submit.rss");
+deletefile(uipath + "tv.rss");
+deletefile(uipath + "wlhdhd_fav.rss");
+deletefile(uipath + "wlhdhd_info.rss");
+deletefile(uipath + "wlhdhd_order.rss");
+deletefile(uipath + "wlhdhd_play.rss");
+deletefile(uipath + "wlhd_program.rss");
+deletefile(uipath + "wlhdhd_xuanji.rss");
+
+postMessage("return");       
+</delcached>
+
+<channel>
+<title>wlhd</title>
+<link>wlhd2.6_program.rss</link>
+<itemSize><script>itemSize;</script></itemSize>
+</channel>
+</rss>

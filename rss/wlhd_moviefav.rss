@@ -1,0 +1,480 @@
+﻿<rss version="2.0" xmlns:media="http://purl.org/dc/elements/1.1/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<script>
+uipath = getEnv("uipath");
+downrss = getEnv("downrss");
+ 
+favid=getEnv("wlhdfavid"); 
+/*
+favClass=getEnv("wlhdfavClass");
+*/
+favClass=getEnv("wlhd_vidcls");
+currentUrl =downrss + "video_list_xml.php?video=" + favClass + "&amp;id=" + favid;
+print("favid----------------",currentUrl);
+dlok = loadXMLFile(currentUrl);
+cancelIdle();
+if (dlok != null){
+		hount = 0;
+        titname  = getXMLAttribute("wlhdvideo","videolist","video",hount,"videoname");
+        titlink = getXMLText("wlhdvideo","videolist","video",hount,"reurl");
+        picurl = getXMLAttribute("wlhdvideo","videolist","video",hount,"pic")  ;
+        videoid = getXMLAttribute("wlhdvideo","videolist","video",hount,"videoid");
+        videocid = getXMLAttribute("wlhdvideo","videolist","video",hount,"videocid");
+        classname = getXMLAttribute("wlhdvideo","videolist","video",hount,"classname");
+        playmd5 = getXMLAttribute("wlhdvideo","videolist","video",hount,"videomd5");
+        actor = getXMLAttribute("wlhdvideo","videolist","video",hount,"actor");
+        director = getXMLAttribute("wlhdvideo","videolist","video",hount,"director");
+        area = getXMLAttribute("wlhdvideo","videolist","video",hount,"area");
+        year = getXMLAttribute("wlhdvideo","videolist","video",hount,"year");
+        gold = getXMLAttribute("wlhdvideo","videolist","video",hount,"videogold");
+        player = getXMLAttribute("wlhdvideo","videolist","video",hount,"videoplay");
+         
+        info = getXMLText("wlhdvideo","videolist","video",hount,"intro");
+        playcount = getXMLElementCount("wlhdvideo","videolist","video",hount,"coderate");
+		menutitleArray=null;
+		menuSize=0;
+		contentcount=0;
+		
+		picurl = picurl + vodPoster(videoid) + ".jpg";
+		/*
+	   while(1)
+	   {
+			menutitleArray  = pushBackStringArray(menutitleArray, getXMLAttribute("wlhdvideo", "videolist", "video","coderate",contentcount,"playname"));
+			  contentcount += 1;
+			  if (contentcount == playcount)
+			  {
+				  break;
+			  }
+		  }	
+		*/
+			allsites = downrss + "get_sites.php?id=" + favid + "&amp;video=" + favClass;
+			print("allsitesallsites" , allsites);
+			dlallsites = loadXMLFile(allsites);
+			if ( dlallsites == null)
+			{
+				dlallsites = loadXMLFile(allsites);
+			}
+			print("##dlxmlallsites",dlallsites);
+			cancelIdle();
+			playcount = getXMLElementCount("wlhdvideo","videolist","video",0,"coderate"); 
+			print("===playcount" , playcount);	  
+			while(1)
+			{
+				menutitleArray  = pushBackStringArray(menutitleArray, getXMLAttribute("wlhdvideo", "videolist", "video","coderate",contentcount,"playname"));
+				                                                     
+				contentcount += 1;
+				if (contentcount == playcount)
+			  {
+				  break;
+			  }
+			}
+		  
+		 print("===menutitleArray" , menutitleArray);	  
+		menuSize=contentcount;
+		selectMenu(0);
+		setFocusMenuIndex(0);
+}
+</script>
+<onEnter>setRefreshTime(100);</onEnter>
+<onExit>setRefreshTime(-1);</onExit>
+<onRefresh>
+if(nowtime &gt; 9) {
+nowtime = nowtime + 20;
+if (nowtime &gt; 300) {
+nowtime = 1;
+playnumwbs= "";
+if( currentIndex  &lt;0 ) currentIndex=0;
+if( currentIndex &gt; itemSize ) currentIndex=itemSize-1;
+if (sfyxb == 1) currentIndex=(currentIndex+1)*1;
+setFocusItemIndex(currentIndex);
+redrawDisplay("item");
+true;
+   }
+}
+</onRefresh>
+<mediaDisplay name=menuGridView rowCount=2 columnCount=6
+fontSize=16
+menuXPC=8.5
+menuYPC=63
+menuWidthPC=10
+menuHeightPC=6
+menuPerPage=5
+menuAlignt="center"
+itemAlignt="center"
+showDefaultInfo=no
+itemXPC=25
+itemYPC=63
+itemWidthPC=10
+itemHeightPC=8
+itemImagewidthPC=10
+itemImageHeightPC=8
+itemGapXPC=1
+itemGapYPC=2
+centerHeightPC=100
+drawItemBorder = no
+idleImageXPC=85
+idleImageYPC=86
+idleImageWidthPC=3.2
+idleImageHeightPC=5.5>
+<idleImage>image/POPUP_LOADING_01.png</idleImage>
+<idleImage>image/POPUP_LOADING_02.png</idleImage>
+<idleImage>image/POPUP_LOADING_03.png</idleImage>
+<idleImage>image/POPUP_LOADING_04.png</idleImage>
+<idleImage>image/POPUP_LOADING_05.png</idleImage>
+<idleImage>image/POPUP_LOADING_06.png</idleImage>
+<idleImage>image/POPUP_LOADING_07.png</idleImage>
+<idleImage>image/POPUP_LOADING_08.png</idleImage>
+<backgroundDisplay name="wlhdmovieBackground"><image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100><script>uipath + "info_bg.png";</script></image></backgroundDisplay>
+<text offsetXPC=39 offsetYPC=89 widthPC=80 heightPC=4 fontSize=14><script>if (itemSize>16){showstr="【快进键】跳转至最后一集,【数字键】跳转至相应集数";}else {showstr="";}showstr;</script></text>
+<text offsetXPC=7.6 offsetYPC=58 widthPC=15 heightPC=4 fontSize=16 foregroundColor=228:191:18>播放源选择</text>
+<image offsetXPC=23.5 offsetYPC=69 widthPC=2.5 heightPC=9>
+<script>if (itemSize&gt;14)uipath + "shortvideo_left_arrowhead.png";else null;</script>
+</image>
+<image offsetXPC=91.5 offsetYPC=69 widthPC=2.5 heightPC=9>
+<script>if (itemSize&gt;14)uipath + "shortvideo_right_arrowhead.png";else null;</script>
+</image>
+<text offsetXPC=28 align=left offsetYPC=89 widthPC=50 heightPC=4 fontSize=16 backgroundColor=-1:-1:-1 foregroundColor=228:191:18><script>if(tsxx==""){getStringArrayAt(titleArray, -1);}else{tsxx;};</script></text>
+
+
+<text offsetXPC=30 offsetYPC=7 widthPC=60 heightPC=6 fontSize=21 align=center backgroundColor=-1:-1:-1 foregroundColor=240:240:240><script> titname ;</script></text>
+<text offsetXPC=30 offsetYPC=17 widthPC=50 heightPC=3.5 fontSize=14 backgroundColor=-1:-1:-1 foregroundColor=119:123:130><script>"演员："+actor;</script></text>
+<text offsetXPC=30 offsetYPC=21 widthPC=20 heightPC=3.5 fontSize=14 backgroundColor=-1:-1:-1 foregroundColor=119:123:130><script>"导演："+director;</script></text> 
+<!-- <text offsetXPC=51 offsetYPC=17 widthPC=20 heightPC=3.5 fontSize=12 backgroundColor=-1:-1:-1 foregroundColor=119:123:130><script>"集数："+itemSize;</script></text> 
+<text offsetXPC=71 offsetYPC=17 widthPC=20 heightPC=3.5 fontSize=12 backgroundColor=-1:-1:-1 foregroundColor=119:123:130><script>"类型："+classname;</script></text>  -->
+<text offsetXPC=75 offsetYPC=17 widthPC=20 heightPC=3.5 fontSize=14 backgroundColor=-1:-1:-1 foregroundColor=119:123:130><script>"集数："+itemSize;</script></text>
+<!--<text offsetXPC=30 offsetYPC=21 widthPC=20 heightPC=3.5 fontSize=14 backgroundColor=-1:-1:-1 foregroundColor=119:123:130><script>"地区："+area;</script></text>
+ <text offsetXPC=51 offsetYPC=21 widthPC=20 heightPC=3.5 fontSize=12 backgroundColor=-1:-1:-1 foregroundColor=119:123:130><script>"年份："+year+"年";</script></text> -->
+<text offsetXPC=75 offsetYPC=21 widthPC=20 heightPC=3.5 fontSize=14 backgroundColor=-1:-1:-1 foregroundColor=119:123:130><script>"地区："+area ;</script></text>
+<!-- <text offsetXPC=31 offsetYPC=25 widthPC=20 heightPC=3.5 fontSize=12 backgroundColor=-1:-1:-1 foregroundColor=119:123:130><script>"更新时间："+addtime;</script></text> -->
+
+<image offsetXPC=30 offsetYPC=26 widthPC=63 heightPC=0.2 ><script>uipath + "title_divider.png";</script></image>
+<text offsetXPC=28 offsetYPC=29 widthPC=67 heightPC=25 fontSize=14 lines=7 backgroundColor=-1:-1:-1 foregroundColor=185:185:186><script>info;</script></text>
+<image offsetXPC=7 offsetYPC=56 widthPC=86.5 heightPC=0.2 ><script>uipath + "title_divider.png";</script></image>
+<image offsetXPC=22 offsetYPC=56 widthPC=0.1 heightPC=40><script>uipath + "v_divider.png";</script></image>
+ 
+<image offsetXPC=9 offsetYPC=12 widthPC=15 heightPC=35 ><script>uipath + "detail_cover.png";</script></image>
+<image offsetXPC=7 offsetYPC=8 widthPC=19 heightPC=45 ><script>picurl;</script></image>
+
+
+<text offsetXPC=75 offsetYPC=58 widthPC=50 heightPC=5 lines=1 fontSize=12 backgroundColor=-1:-1:-1 foregroundColor=255:255:0><script>if (sfyxb==1){if(Record_n &gt; 1){if(Record_m &gt; 1){Recordplay="上次看到：第"+ Record_n +"集,第"+Record_m+"段,"+secondToString(Record_start);}else{Recordplay="上次看到：第"+ Record_n +"集,"+secondToString(Record_start);}}else{Recordplay="上次看到："+secondToString(Record_start);}}Recordplay;</script></text>
+
+<menuDisplay>
+		<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 useBackgroundSurface="yes"/>
+		<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100>
+		<script>
+		index1 = getQueryMenuIndex();
+		index2 = getFocusMenuIndex();
+		pageInfo = getPageInfo("majorContext");
+		if (index1  == index2)
+		{
+    if (pageInfo == "menu")
+		{
+			uipath + "movie_guide_focus.png";
+		}
+    else if (pageInfo == "items")
+		{
+			uipath + "movie_guide_inactive.png";
+		}
+		}
+		else
+		{
+			null;
+		}
+		</script>
+		</image>
+		<text offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 backgroundColor=-1:-1:-1 align=center>
+		<foregroundColor>
+			<script>
+			fg="250:250:250";
+			index1 = getQueryMenuIndex();
+			index2 = getFocusMenuIndex();
+			if (index1 == index2)
+			{
+				fg="255:255:0";
+			}
+			fg;
+		</script>
+		</foregroundColor>
+		<fontSize>
+			<script>
+			font_size="14";
+			index1 = getQueryMenuIndex();
+			index2 = getFocusMenuIndex();
+			if (index1 == index2)
+			{
+				font_size="14";
+			}
+			font_size;
+		</script>
+		</fontSize>
+		<script>
+		index = getQueryMenuIndex();
+		str = getStringArrayAt(menutitleArray, index);
+		str;
+		</script>
+		</text>
+	</menuDisplay>
+	<itemDisplay>
+	<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100>
+	<script>
+		if(getDrawingItemState() == "focus")
+		{
+			tepimg=uipath + "online_info_focus.png" ;
+		}
+		else
+		{
+			tepimg=uipath + "online_info_unfocus.png";
+		}
+		tepimg;
+	</script>
+	</image>
+<text offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 align=center>
+		<foregroundColor>
+		<script>
+		fg="250:250:250";
+		if(getDrawingItemState() == "focus")
+		{
+			fg="250:250:0";
+		}
+		fg;	
+		</script>
+		</foregroundColor>
+		<fontSize>
+			<script>
+			font_size="15";
+			if(getDrawingItemState() == "focus")
+			{
+				font_size="15";
+			}
+			font_size;
+		</script>
+		</fontSize>
+<script>if (itemSize == 1) {"播 放";}else{getStringArrayAt(titleArray, -1);}</script>
+</text>
+</itemDisplay>
+<onEnter>setFullScreenFade(160);</onEnter>
+<onUserInput>
+input = currentUserInput();
+pageInfo = getPageInfo("majorContext");
+ret = "false";
+	if (input == "video_ffwd")
+{
+nowtime = 10;
+currentIndex=itemSize;
+}
+if (pageInfo == "menu")
+{
+	if (input == "right")
+{
+		focus = getFocusMenuIndex();
+		selectMenu(focus);
+}
+	else if (input == "enter")
+	{
+		postMessage("right");
+	}
+	else if (input == "left")
+	{
+		ret = "true";
+	}
+}
+focusIndex = getFocusItemIndex();
+input = currentUserInput();
+if (input == "display" || input == "option_yellow"){executeScript("Record");}
+else if (input == "video_stop"){executeScript("baocuo");}
+else if (input == "pagedown")
+	{
+		if (homeSize &gt; 1){
+		qhIndex = Add(qhIndex,1);
+		if(qhIndex &gt; (homeSize-1)){qhIndex=0;}
+		executeScript("qiehuanjs");
+	}
+true;
+}
+else if (input == "pageup")
+	{
+		if (homeSize &gt; 1){
+		qhIndex = Minus(qhIndex,1);
+		if(qhIndex  &lt;0 ){qhIndex=(homeSize-1);}
+		executeScript("qiehuanjs");
+	}
+true;
+}
+else if (input == "one" || input == "two" || input == "three" || input == "four" || input == "five" || input == "six" || input == "seven" || input == "eight" || input == "nine" || input == "zero"){
+if (input == "one" || input == "two" || input == "three" || input == "four" || input == "five" || input == "six" || input == "seven" || input == "eight" || input == "nine" || input == "zero") {
+if (input == "one") playnumwbs=playnumwbs+"1";
+if (input == "two") playnumwbs=playnumwbs+"2";
+if (input == "three") playnumwbs=playnumwbs+"3";
+if (input == "four") playnumwbs=playnumwbs+"4";
+if (input == "five") playnumwbs=playnumwbs+"5";
+if (input == "six") playnumwbs=playnumwbs+"6";
+if (input == "seven") playnumwbs=playnumwbs+"7";
+if (input == "eight") playnumwbs=playnumwbs+"8";
+if (input == "nine") playnumwbs=playnumwbs+"9";
+if (input == "zero") playnumwbs=playnumwbs+"0";
+if (playnumwbs&lt;0) playnumwbs=playnumwbs+"0";
+nowtime = 10;
+currentIndex = Add(playnumwbs,-1);
+   }
+true;
+}
+else
+"false";
+redrawDisplay();
+ret;
+</onUserInput>
+</mediaDisplay>
+<menu_template>
+<onClick>
+sflink = getFocusMenuIndex();
+executeScript("openxml");
+redrawDisplay();
+</onClick>
+</menu_template>
+<item_template>
+<onClick>
+if(getStringArrayAt(linkArray, -1) == "0")
+	{null;}
+else
+{
+	if (titname != null){
+	/*
+		k=0;
+		jltitlePath = uipath + "wlhdRecord_title.dat";
+		jlimgPath = uipath + "wlhdRecord_img.dat";
+		jllinkPath = uipath + "wlhdRecord_link.dat";
+        jlvidclsPath = uipath+"wlhdRecord_vidcls.dat";
+		RecordtitleArray=readStringFromFile(jltitlePath);
+		RecordimgArray=readStringFromFile(jlimgPath);
+		RecordlinkArray=readStringFromFile(jllinkPath);
+		RecordVidClsArray=readStringFromFile(jlvidclsPath);
+		while (getStringArrayAt(RecordimgArray,40) != null){
+			RecordlinkArray = deleteStringArrayAt(RecordlinkArray, 0);
+			RecordimgArray = deleteStringArrayAt(RecordimgArray, 0);
+			RecordtitleArray = deleteStringArrayAt(RecordtitleArray, 0);
+			RecordVidClsArray = deleteStringArrayAt(RecordVidClsArray, 0);
+		}
+		while (getStringArrayAt(RecordimgArray, k) != null) {
+			if(picurl == getStringArrayAt(RecordimgArray,k)){
+				RecordtitleArray = deleteStringArrayAt(RecordtitleArray, k);
+				RecordimgArray = deleteStringArrayAt(RecordimgArray, k);
+				RecordlinkArray = deleteStringArrayAt(RecordlinkArray, k);
+				RecordVidClsArray = deleteStringArrayAt(RecordVidClsArray, k);
+			}else{
+				k=k+1;
+			}
+		}
+		RecordtitleArray=pushBackStringArray(RecordtitleArray, titname);
+		RecordimgArray=pushBackStringArray(RecordimgArray, picurl);
+		RecordlinkArray=pushBackStringArray(RecordlinkArray, videoid);
+		RecordVidClsArray=pushBackStringArray(RecordVidClsArray, videoid);
+		writeStringToFile(jltitlePath,RecordtitleArray);
+		writeStringToFile(jlimgPath,RecordimgArray);
+		writeStringToFile(jllinkPath,RecordlinkArray);
+		writeStringToFile(jlvidclsPath,RecordVidClsArray);
+		*/
+	}
+}
+if(getStringArrayAt(linkArray, -1) == "0"){
+	tzurl=null;
+}else{
+	if(getStringArrayAt(linkArray, -1) == "kong")
+		{setEnv("wlhdxubo", "yes");}
+	else
+		{setEnv("wlhdxubo", "no");}
+		
+	setEnv("wlhdvideoPlayN", getStringArrayAt(jsidArray, -1));
+	setEnv("wlhdvideoTitle", titname);
+	setEnv("wlhdpicurl", picurl);
+	setEnv("wlhdmd5", playmd5);
+	print("wlhdvideoPlayN", getStringArrayAt(jsidArray, -1));
+	playurl = uipath + "play.rss";
+	if (readStringFromFile(playurl) == null) 
+		{dldUrl2File(downrss + "../rss/play.rss", playurl);}
+}
+playurl;
+</onClick>
+</item_template> 
+<openxml>
+RecordSize=0;
+sfyxb=0;
+itemSize=0;
+qhIndex=0;
+titleArray = null;
+jsidArray = null;
+linkArray = null;
+tsxxArray = null;
+listArray = null;
+listtsname = "";
+count = 0;
+playurl_Record1_Path = uipath + "wlhdplayurlRecord1.dat";
+playurl_Record2_Path = uipath + "wlhdplayurlRecord2.dat";
+playurl_Record3_Path = uipath + "wlhdplayurlRecord3.dat";
+playurl_Record4_Path = uipath + "wlhdplayurlRecord4.dat";
+playurlRecord1Array=readStringFromFile(playurl_Record1_Path);
+playurlRecord2Array=readStringFromFile(playurl_Record2_Path);
+playurlRecord3Array=readStringFromFile(playurl_Record3_Path);
+playurlRecord4Array=readStringFromFile(playurl_Record4_Path);
+while (getStringArrayAt(playurlRecord1Array, RecordSize) != null){
+if (getStringArrayAt(playurlRecord1Array, RecordSize) == playmd5){
+Record_n=(getStringArrayAt(playurlRecord2Array, RecordSize)+1)*1;
+Record_m=(getStringArrayAt(playurlRecord3Array, RecordSize)+1)*1;
+Record_start=getStringArrayAt(playurlRecord4Array, RecordSize);
+sfyxb=1;
+break;
+}
+RecordSize=RecordSize+1;
+}
+if (sfyxb == 1){
+jsidArray  = pushBackStringArray(jsidArray, "kong");
+titleArray  = pushBackStringArray(titleArray, "续播");
+linkArray  = pushBackStringArray(linkArray, "kong");
+}
+      playlistsize = getXMLElementCount("wlhdvideo","videolist","video","coderate",sflink,"videourl");
+if(playlistsize &gt; 0){
+	while (1)
+	{
+			jsidArray  = pushBackStringArray(jsidArray, count);
+			titleArray  = pushBackStringArray(titleArray, getXMLAttribute("wlhdvideo","videolist","video","coderate",sflink,"videourl",count,"playtitle"));
+			linkArray  = pushBackStringArray(linkArray, downrss + "resolve.php?url=" + getXMLAttribute("wlhdvideo","videolist","video","coderate",sflink,"videourl",count,"playurl"));
+			count += 1;
+			if (count == playlistsize)
+			{
+				break;
+			}
+	}
+ }
+itemSize = playlistsize;
+jiarSize=0;
+jiartitleArray = null;
+jiarlinkArray = null;
+if (sfyxb == 1) itemSize=(itemSize+1)*1;
+playtitlePath = uipath + "wlhdplay_title.dat";
+playlinkPath = uipath + "wlhdplay_link.dat";
+deletefile(playtitlePath);
+deletefile(playlinkPath);
+while (getStringArrayAt(linkArray, jiarSize) != null){
+jiartitleArray=pushBackStringArray(jiartitleArray, getStringArrayAt(titleArray, jiarSize));
+jiarlinkArray=pushBackStringArray(jiarlinkArray, getStringArrayAt(linkArray, jiarSize));
+jiarSize=jiarSize+1;
+}
+while (getStringArrayAt(jiarlinkArray, 0) == "kong") {
+jiartitleArray = deleteStringArrayAt(jiartitleArray, 0);
+jiarlinkArray = deleteStringArrayAt(jiarlinkArray, 0);
+}
+writeStringToFile(playtitlePath,jiartitleArray);
+writeStringToFile(playlinkPath,jiarlinkArray);
+tsxx="";
+jinzhicf = 0;
+nowtime = 1;
+playnumwbs = "";
+Logoimg = "";
+setFocusItemIndex(0);
+setItemFocus(0);
+</openxml>
+<channel>
+	<title>蓝莓电子 http://www.blueberry-tek.com</title>
+<link>.</link>
+<menuSize><script>menuSize;</script></menuSize>
+<itemSize><script>itemSize;</script></itemSize>
+</channel>
+</rss>

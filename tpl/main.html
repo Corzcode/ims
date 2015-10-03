@@ -1,0 +1,365 @@
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<script>	
+
+vodver = "2.6";
+downrss = "<?php echo $site_url;?>/";
+custom = "null";
+dest = "home";
+uipath = "/usr/local/etc/dvdplayer/czhd"+vodver+"_";
+ffpath= getStoragePath("tmp");
+setEnv("downrss", downrss);
+setEnv("uipath", uipath);
+setEnv("ffpath", ffpath);
+setEnv("sw_custom", custom);
+loading = 0;
+setScreenSaverTiming( "$[OFF]" );
+destname = "点播";
+if (dest == "mov") {
+	destname = "电影";
+}
+else if (dest == "tvb") {
+	destname = "电视剧";
+}
+else if (dest == "show") {
+	destname = "综艺";
+}
+else if (dest == "comic") {
+	destname = "动漫";
+}
+else if (dest == "huibo") {
+	destname = "回播";
+}
+</script>
+<onEnter>
+wlhdflagts = getEnv("wlhdnewhome");
+if (wlhdflagts== "exit")
+	postMessage("return");
+	
+setEnv("wlhdnewhome", "jump");
+setRefreshTime(1000);
+</onEnter> 
+<onExit>
+setRefreshTime(-1);
+unsetEnv("IMS_MODE");
+
+executeScript("delcached");
+</onExit>
+<onRefresh>
+setRefreshTime(-1);
+
+if (readStringFromFile(uipath + "v_divider.png")==null) dldUrl2File(downrss+ "../ui/v_divider.png",uipath + "v_divider.png");
+if (readStringFromFile(uipath + "title_divider.png")==null) dldUrl2File(downrss+ "../ui/title_divider.png",uipath + "title_divider.png");
+if (readStringFromFile(uipath + "huobo_bg.png")==null) dldUrl2File(downrss+ "../ui/huobo_bg.png",uipath + "huobo_bg.png");
+if (readStringFromFile(uipath + "comic_focus.png")==null) dldUrl2File(downrss+ "../ui/comic_focus.png",uipath + "comic_focus.png");
+if (readStringFromFile(uipath + "comic_unfocus.png")==null) dldUrl2File(downrss+ "../ui/comic_unfocus.png",uipath + "comic_unfocus.png");
+if (readStringFromFile(uipath + "huikan_focus.png")==null) dldUrl2File(downrss+ "../ui/huikan_focus.png",uipath + "huikan_focus.png");
+if (readStringFromFile(uipath + "huikan_unfocus.png")==null) dldUrl2File(downrss+ "../ui/huikan_unfocus.png",uipath + "huikan_unfocus.png");
+if (readStringFromFile(uipath + "show_focus.png")==null) dldUrl2File(downrss+ "../ui/show_focus.png",uipath + "show_focus.png");
+if (readStringFromFile(uipath + "show_unfocus.png")==null) dldUrl2File(downrss+ "../ui/show_unfocus.png",uipath + "show_unfocus.png");
+if (readStringFromFile(uipath + "tvb_focus.png")==null) dldUrl2File(downrss+ "../ui/tvb_focus.png",uipath + "tvb_focus.png");
+if (readStringFromFile(uipath + "tvb_unfocus.png")==null) dldUrl2File(downrss+ "../ui/tvb_unfocus.png",uipath + "tvb_unfocus.png");
+if (readStringFromFile(uipath + "left_arrow_up_focus.png")==null) dldUrl2File(downrss+ "../ui/left_arrow_up_focus.png",uipath + "left_arrow_up_focus.png");
+if (readStringFromFile(uipath + "arrow_unfocus.png")==null) dldUrl2File(downrss+ "../ui/arrow_unfocus.png",uipath + "arrow_unfocus.png");
+if (readStringFromFile(uipath + "left_arrow_down_focus.png")==null) dldUrl2File(downrss+ "../ui/left_arrow_down_focus.png",uipath + "left_arrow_down_focus.png");
+if (readStringFromFile(uipath + "kbd_bg.jpg")==null) dldUrl2File(downrss+ "../ui/kbd_bg.jpg",uipath + "kbd_bg.jpg");
+if (readStringFromFile(uipath + "menu_focus.png")==null) dldUrl2File(downrss+ "../ui/menu_focus.png",uipath + "menu_focus.png"); 
+if (readStringFromFile(uipath + "bg.png")==null) dldUrl2File(downrss+ "../ui/bg.png",uipath + "bg.png");
+if (readStringFromFile(uipath + "lm_logo.png")==null) dldUrl2File(downrss+ "../ui/lm_logo.png",uipath + "lm_logo.png");
+if (readStringFromFile(uipath + "mov_focus.png")==null) dldUrl2File(downrss+ "../ui/mov_focus.png",uipath + "mov_focus.png");
+if (readStringFromFile(uipath + "mov_unfocus.png")==null) dldUrl2File(downrss+ "../ui/mov_unfocus.png",uipath + "mov_unfocus.png");
+if (readStringFromFile(uipath + "list_bg.png")==null) dldUrl2File(downrss+ "../ui/list_bg.png",uipath + "list_bg.png");
+if (readStringFromFile(uipath + "info_bg.png")==null) dldUrl2File(downrss+ "../ui/info_bg.png",uipath + "info_bg.png");
+if (readStringFromFile(uipath + "movie_guide_focus.png")==null) dldUrl2File(downrss+ "../ui/movie_guide_focus.png",uipath + "movie_guide_focus.png");
+if (readStringFromFile(uipath + "movie_guide_inactive.png")==null) dldUrl2File(downrss+ "../ui/movie_guide_inactive.png",uipath + "movie_guide_inactive.png");
+if (readStringFromFile(uipath + "online_info_focus.png")==null) dldUrl2File(downrss+ "../ui/online_info_focus.png",uipath + "online_info_focus.png");
+if (readStringFromFile(uipath + "online_info_unfocus.png")==null) dldUrl2File(downrss+ "../ui/online_info_unfocus.png",uipath + "online_info_unfocus.png");
+if (readStringFromFile(uipath + "submit_bg.png")==null) dldUrl2File(downrss+ "../ui/submit_bg.png",uipath + "submit_bg.png");
+if (readStringFromFile(uipath + "submit_focus.png")==null) dldUrl2File(downrss+ "../ui/submit_focus.png",uipath + "submit_focus.png");
+if (readStringFromFile(uipath + "progressbar_01.png")==null) dldUrl2File(downrss+ "../ui/progressbar_01.png",uipath + "progressbar_01.png");
+if (readStringFromFile(uipath + "progressbar_02.png")==null) dldUrl2File(downrss+ "../ui/progressbar_02.png",uipath + "progressbar_02.png");
+if (readStringFromFile(uipath + "play_movie_bg.png")==null) dldUrl2File(downrss+ "../ui/play_movie_bg.png",uipath + "play_movie_bg.png");
+if (readStringFromFile(uipath + "player_btn_bg.png")==null) dldUrl2File(downrss+ "../ui/player_btn_bg.png",uipath + "player_btn_bg.png");
+if (readStringFromFile(uipath + "play_title_hbg.png")==null) dldUrl2File(downrss+ "../ui/play_title_hbg.png",uipath + "play_title_hbg.png");
+if (readStringFromFile(uipath + "detail_cover.png")==null) dldUrl2File(downrss+ "../ui/detail_cover.png",uipath + "detail_cover.png");
+if (readStringFromFile(uipath + "arc_list_hi.png")==null) dldUrl2File(downrss+ "../ui/arc_list_hi.png",uipath + "arc_list_hi.png");
+if (readStringFromFile(uipath + "slider_thumb_btn.png")==null) dldUrl2File(downrss+ "../ui/slider_thumb_btn.png",uipath + "slider_thumb_btn.png");
+if (readStringFromFile(uipath + "shortvideo_left_arrowhead.png")==null) dldUrl2File(downrss+ "../ui/shortvideo_left_arrowhead.png",uipath + "shortvideo_left_arrowhead.png");
+if (readStringFromFile(uipath + "shortvideo_right_arrowhead.png")==null) dldUrl2File(downrss+ "../ui/shortvideo_right_arrowhead.png",uipath + "shortvideo_right_arrowhead.png");
+if (readStringFromFile(uipath + "hb_date_bj.png")==null) dldUrl2File(downrss+ "../ui/hb_date_bj.png",uipath + "hb_date_bj.png");
+if (readStringFromFile(uipath + "skb_focus.png")==null) dldUrl2File(downrss+ "../ui/skb_focus.png",uipath + "skb_focus.png");
+if (readStringFromFile(uipath + "skb_unfocus.png")==null) dldUrl2File(downrss+ "../ui/skb_unfocus.png",uipath + "skb_unfocus.png");
+if (readStringFromFile(uipath + "processbar_blue.png")==null) dldUrl2File(downrss+ "../ui/processbar_blue.png",uipath + "processbar_blue.png"); 
+if (readStringFromFile(uipath + "processbar_gray.png")==null) dldUrl2File(downrss+ "../ui/processbar_gray.png",uipath + "processbar_gray.png"); 
+if (readStringFromFile(uipath + "process_focus_ball.png")==null) dldUrl2File(downrss+ "../ui/process_focus_ball.png",uipath + "process_focus_ball.png"); 
+if (readStringFromFile(uipath + "seek_bg_d.png")==null) dldUrl2File(downrss+ "../ui/seek_bg_d.png",uipath + "seek_bg_d.png");
+if (readStringFromFile(uipath + "tvbg.png")==null) dldUrl2File(downrss+ "../ui/tvbg.png",uipath + "tvbg.png");
+if (readStringFromFile(uipath + "play_bg.png")==null) dldUrl2File(downrss+ "../ui/play_bg.png",uipath + "play_bg.png"); 
+if (wlhdflagts == null || wlhdflagts == "jump"|| wlhdflagts == "update") {
+	if (dest == "mov") {
+		jumpToLink("dest_mov");  
+	}
+	else if (dest == "tvb") {
+		jumpToLink("dest_tvb"); 
+	}
+	else if (dest == "show") {
+		jumpToLink("dest_show"); 
+	}
+	else if (dest == "comic") {
+		jumpToLink("dest_comic"); 
+	}
+	else if (dest == "huibo") {
+		jumpToLink("dest_huibo"); 
+	}
+	else {	
+		jumpToLink("dest_home");  
+	}	
+}	
+else {
+	postMessage("return");
+}	
+</onRefresh>
+<mediaDisplay name=photoView
+itemBackgroundColor=0:0:0
+backgroundColor=0:0:0
+sideTopHeightPC=0
+sideBottomHeightPC=0
+bottomYPC=100
+rowCount=4
+columnCount=6
+fontSize=16
+itemPerPage=5
+itemBorderPC=0
+itemOffsetXPC=9
+itemGapXPC=2
+itemGapYPC=2
+itemWidthPC=14
+itemHeightPC=14
+centerYPC=20
+centerHeightPC=100
+focusItem="1"
+idleImageXPC=85
+idleImageYPC=86
+idleImageWidthPC=3.2
+idleImageHeightPC=5.5
+showHeader="no"
+showDefaultInfo="no">
+<idleImage>image/POPUP_LOADING_01.png</idleImage>
+<idleImage>image/POPUP_LOADING_02.png</idleImage>
+<idleImage>image/POPUP_LOADING_03.png</idleImage>
+<idleImage>image/POPUP_LOADING_04.png</idleImage>
+<idleImage>image/POPUP_LOADING_05.png</idleImage>
+<idleImage>image/POPUP_LOADING_06.png</idleImage>
+<idleImage>image/POPUP_LOADING_07.png</idleImage>
+<idleImage>image/POPUP_LOADING_08.png</idleImage>
+ 
+	<backgroundDisplay name=main_bg>
+		<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100>
+			<script>
+				main_bg_path = uipath + "bg.png"; 
+				if (readStringFromFile(uipath + "bg.png")==null)
+					{ main_bg_path = "image/IMS_bg.fsp"; }
+					
+				main_bg_path;		
+			</script>
+		</image>
+	</backgroundDisplay>
+	
+<image offsetXPC=39 offsetYPC=20 widthPC=21.9 heightPC=38.9 >
+<script>
+	if (readStringFromFile(uipath + "lm_logo.png")==null)
+		{logourl=downrss + "../ui/lm_logo.png";}
+	else
+		{logourl=uipath + "lm_logo.png";}
+		
+	logourl;
+</script>
+</image>
+
+<text offsetXPC=0 offsetYPC=58 widthPC=100 heightPC=20 fontSize=30 backgroundColor=-1:-1:-1 foregroundColor=200:200:200 align=center>
+<script>
+FlagZr = readStringFromFile(uipath + "lm_logo.png");
+if (FlagZr == null) 
+{
+	if(wlhdflagts == "exit")
+		{"正在清除缓存，请稍候...";}
+	else
+		{"正在更新系统, 请稍候...";}
+}
+else
+{
+	if (wlhdflagts == null || wlhdflagts == "jump") 
+		{"正在加载 " + destname + "...";}
+	else
+		{"正在退出系统...";}
+}
+</script>
+</text>
+
+<text offsetXPC=0 offsetYPC=75 widthPC=100 heightPC=9 fontSize=20 backgroundColor=-1:-1:-1 foregroundColor=255:255:255 align=center> 
+<script>
+FlagZr = readStringFromFile(uipath + "lm_logo.png");
+if (FlagZr == null &amp;&amp; wlhdflagts != "exit" ) 
+	{"最近更新: UI细节优化" ;}
+else	
+	{"";}
+</script>
+</text>
+
+<text offsetXPC=0 offsetYPC=85 widthPC=100 heightPC=9 fontSize=20 backgroundColor=-1:-1:-1 foregroundColor=255:255:255 align=center> 
+<script>
+	"版本: " + vodver;
+</script>
+</text>
+</mediaDisplay>
+
+<dest_home>
+<link>
+<script>
+	homepath = uipath + "home.rss";
+	if (readStringFromFile(homepath) == null )dldUrl2File(downrss + "../rss/home.rss",homepath);
+	homepath;
+</script>
+</link>
+</dest_home> 
+ 
+<dest_mov>
+<link>
+<script>
+		setEnv("wlhdnewhome", "exit");
+		setEnv("videoClassURL", "1");
+		programpath=uipath + "program.rss";
+		if (readStringFromFile(programpath) == null )dldUrl2File(downrss + "../rss/program.rss",programpath);
+		programpath;
+</script>
+</link>
+</dest_mov>  
+
+<dest_tvb>
+<link>
+<script>
+		setEnv("wlhdnewhome", "exit");
+		setEnv("videoClassURL", "2");
+		programpath=uipath + "program.rss";
+		if (readStringFromFile(programpath) == null )dldUrl2File(downrss + "../rss/program.rss",programpath);
+		programpath;
+</script>
+</link>
+</dest_tvb>  
+
+<dest_comic>
+<link>
+<script>
+		setEnv("wlhdnewhome", "exit");
+		setEnv("videoClassURL", "3");
+		programpath=uipath + "program.rss";
+		if (readStringFromFile(programpath) == null )dldUrl2File(downrss + "../rss/program.rss",programpath);
+		programpath;
+</script>
+</link>
+</dest_comic> 
+
+<dest_show>
+<link>
+<script>
+		setEnv("wlhdnewhome", "exit");
+		setEnv("videoClassURL", "4");
+		programpath=uipath + "program.rss";
+		if (readStringFromFile(programpath) == null )dldUrl2File(downrss + "../rss/vod.rss",programpath);
+		programpath;
+</script>
+</link>
+</dest_show> 
+
+<dest_huibo>
+<link>
+<script>
+		setEnv("wlhdnewhome", "exit");
+		huibopath = uipath + "huibo.rss";
+		if (readStringFromFile(huibopath) == null )dldUrl2File(downrss + "../rss/huibo.rss",huibopath);
+		huibopath;
+</script>
+</link>
+</dest_huibo> 
+
+<delcached>
+old_ver = null; 
+
+old_uipath = "/usr/local/etc/dvdplayer/wlhd";
+if (readStringFromFile( old_uipath + "2.1" + "lm_logo.png") != null) {
+	old_ver = "2.4"; 
+}
+else if (readStringFromFile( old_uipath + "1.7" + "lm_logo.png") != null ) {
+	old_ver = "2.3"; 
+}
+else if (readStringFromFile( old_uipath + "2.0" + "lm_logo.png") !=null ) {
+	old_ver = "2.2"; 
+}
+
+if (old_ver != null) {
+	old_uipath = "/usr/local/etc/dvdplayer/wlhd" + old_ver; 
+
+	deletefile(old_uipath + "v_divider.png");	
+	deletefile(old_uipath + "title_divider.png");
+	deletefile(old_uipath + "huobo_bg.png");
+	deletefile(old_uipath + "huobo_bg.jpg");
+	deletefile(old_uipath + "comic_focus.png");
+	deletefile(old_uipath + "comic_unfocus.png");
+	deletefile(old_uipath + "huikan_focus.png");
+	deletefile(old_uipath + "huikan_unfocus.png");
+	deletefile(old_uipath + "show_focus.png");
+	deletefile(old_uipath + "show_unfocus.png");
+	deletefile(old_uipath + "tvb_focus.png");
+	deletefile(old_uipath + "tvb_unfocus.png");
+	deletefile(old_uipath + "left_arrow_up_focus.png");
+	deletefile(old_uipath + "arrow_unfocus.png");
+	deletefile(old_uipath + "left_arrow_down_focus.png");
+	deletefile(old_uipath + "kbd_bg.jpg");
+	deletefile(old_uipath + "menu_focus.png");
+	deletefile(old_uipath + "bg.png");
+	deletefile(old_uipath + "lm_logo.png");
+	deletefile(old_uipath + "mov_focus.png");
+	deletefile(old_uipath + "mov_unfocus.png");
+	deletefile(old_uipath + "list_bg.png");
+	deletefile(old_uipath + "list_bg.jpg");
+	deletefile(old_uipath + "info_bg.png");
+	deletefile(old_uipath + "info_bg.jpg");
+	deletefile(old_uipath + "movie_guide_focus.png");
+	deletefile(old_uipath + "movie_guide_inactive.png");
+	deletefile(old_uipath + "online_info_focus.png");
+	deletefile(old_uipath + "online_info_unfocus.png");
+	deletefile(old_uipath + "submit_bg.png");
+	deletefile(old_uipath + "submit_focus.png");
+	deletefile(old_uipath + "progressbar_01.png");
+	deletefile(old_uipath + "progressbar_02.png");
+	deletefile(old_uipath + "play_movie_bg.png");
+	deletefile(old_uipath + "player_btn_bg.png");
+	deletefile(old_uipath + "play_title_hbg.png");
+	deletefile(old_uipath + "detail_cover.png");
+	deletefile(old_uipath + "arc_list_hi.png");
+	deletefile(old_uipath + "slider_thumb_btn.png");
+	deletefile(old_uipath + "shortvideo_left_arrowhead.png");
+	deletefile(old_uipath + "shortvideo_right_arrowhead.png");
+	deletefile(old_uipath + "hb_date_bj.png");
+	deletefile(old_uipath + "skb_focus.png");
+	deletefile(old_uipath + "skb_unfocus.png");
+	deletefile(old_uipath + "vod.rss");
+	deletefile(old_uipath + "mtv_play.rss");
+	deletefile(old_uipath + "wlhd_play.rss");
+	deletefile(old_uipath + "play.rss");
+	deletefile(old_uipath + "infourl.rss");
+	deletefile(old_uipath + "moviefav.rss");
+	deletefile(old_uipath + "huibo.rss");
+	deletefile(old_uipath + "home.rss");
+	deletefile(old_uipath + "vs_play.rss");
+	deletefile(old_uipath + "vs_playlist.rss");
+	deletefile(old_uipath + "vs_seek.rss");
+	deletefile(old_uipath + "processbar_blue.png");
+	deletefile(old_uipath + "processbar_gray.png");
+	deletefile(old_uipath + "process_focus_ball.png");
+	deletefile(old_uipath + "seek_bg_d.png");
+	deletefile(old_uipath + "tvbg.png");
+	deletefile(old_uipath + "play_bg.png");
+}
+
+</delcached>
+</rss>

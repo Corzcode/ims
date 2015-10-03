@@ -1,0 +1,717 @@
+﻿<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<script>
+uipath = getEnv("uipath");
+downrss = getEnv("downrss");
+timePoint=0;
+playnow = 0;
+zrurls = 1;
+playts = "";
+itemSize = 0;
+RecordSize = 0;
+playnumber = "";
+playjsts = "no";
+playnumwbs = "";
+infoDisplay = "no";
+returnFromSeek = "no";
+titleArray=null;
+linkArray=null;
+playname = getEnv("wlhdvideoTitle");
+playmd5 = getEnv("wlhdmd5");
+xubostatus = getEnv("wlhdxubo");
+playtitlePath = uipath + "wlhdplay_title.dat";
+playlinkPath = uipath + "wlhdplay_link.dat";
+readtitleArray=readStringFromFile(playtitlePath);
+readlinkArray=readStringFromFile(playlinkPath);
+while (getStringArrayAt(readlinkArray, itemSize) != null) {
+titleArray=pushBackStringArray(titleArray, getStringArrayAt(readtitleArray, itemSize));
+linkArray=pushBackStringArray(linkArray, getStringArrayAt(readlinkArray, itemSize));
+itemSize=itemSize+1;
+}
+playurl_Record1_Path = uipath + "wlhdplayurlRecord1.dat";
+playurl_Record2_Path = uipath + "wlhdplayurlRecord2.dat";
+playurl_Record3_Path = uipath + "wlhdplayurlRecord3.dat";
+playurl_Record4_Path = uipath + "wlhdplayurlRecord4.dat";
+playurlRecord1Array=readStringFromFile(playurl_Record1_Path);
+playurlRecord2Array=readStringFromFile(playurl_Record2_Path);
+playurlRecord3Array=readStringFromFile(playurl_Record3_Path);
+playurlRecord4Array=readStringFromFile(playurl_Record4_Path);
+while (getStringArrayAt(playurlRecord1Array, RecordSize) != null){
+if (getStringArrayAt(playurlRecord1Array, RecordSize) == playmd5){
+n=getStringArrayAt(playurlRecord2Array, RecordSize);
+m=getStringArrayAt(playurlRecord3Array, RecordSize);
+start=getStringArrayAt(playurlRecord4Array, RecordSize);
+break;
+}
+RecordSize=RecordSize+1;
+}
+</script>
+<onEnter>
+if (linkArray == null) postMessage("return");
+currettime = 0;
+timeCount = 20;
+startVideo = 1;
+pauseVideo = -1;
+setRefreshTime(100);
+if (xubostatus =="yes")
+{
+if (n == null){n=0;}else{n=Integer(n);}
+if (m == null){m=0;}else{m=Integer(m);}
+if (start != null){start=Integer(start);}
+}
+else
+{
+n=getEnv("wlhdvideoPlayN");
+m=0;
+start=0;
+}
+</onEnter>
+<onExit>
+playItemURL(-1, 1);
+setRefreshTime(-1);
+</onExit>
+<onRefresh>
+print("onRefresh start ......");
+print("onRefresh start ......");
+print("onRefresh start ......");
+print("onRefresh start ......");
+if (getErrorCode() != 0)
+{
+executeScript("baocunRecord");
+playItemURL(-1, 1);
+setRefreshTime(-1);
+postMessage("return");
+}
+if (n &gt; (itemSize-1)){n=0;}else{
+	if (infoDisplay == "yes")
+	{
+	     if (timeCount &gt; 8)
+	     {
+	     timeCount = 0;
+	     infoDisplay = "no";
+	     }
+	    timeCount = Add(timeCount, 1);
+	}
+	if (playjsts == "yes")
+	{
+	if (playnow &gt; 3)
+	{
+	playnow = 0;
+	playnumwbs = "";
+	playjsts = "no";
+	if (itemSize &gt; 1)
+        {
+        if (n != Minus(playnumber,1) &amp;&amp; playnumber &gt; 0)
+        {
+         zrurls=1;
+         n=Minus(playnumber,1);
+         startVideo = 1;
+         playnumber=0;
+         if(itemSize &gt; 1) playItemURL(-1, 1);
+        }
+        }
+        else
+        {
+        if (m != Minus(playnumber,1) &amp;&amp; playnumber &gt; 0)
+        {
+        m=Minus(playnumber,1);
+        startVideo = 1;
+        playnumber=0;
+        if(urlSize &gt; 1) playItemURL(-1, 1);
+        }
+      }
+   }
+   playnow = add(playnow,1);
+	}
+		if (startVideo == 1)
+		{
+		executeScript("getplayurl");
+		if (currentUrl == null || currentUrl ==""){postMessage("return");}
+		else{playItemURL(currentUrl,0,"mediaDisplay", "previewWindow");}
+		startVideo = 0;
+		playnumwbs = "";
+		playnumber = 0;
+		playnow = 0;
+		playjsts = "yes";
+		setRefreshTime(500);
+		}
+		else if (returnFromSeek == "no")
+		{
+			videoProgress = getPlaybackStatus();
+			playElapsed = getStringArrayAt(videoProgress, 0);
+			playStatus = getStringArrayAt(videoProgress, 3);
+			if (playStatus == 0)
+			{
+			if(add(m,1) == urlSize || urlSize &lt; 4 )
+			{
+				if ((n+1)&gt;(itemSize-1))
+				  {
+					n=0;
+					m=0;
+					executeScript("baocunRecord");
+					playItemURL(-1, 1);
+					setRefreshTime(-1);
+					postMessage("return");
+				  }
+				  else
+				  {
+					zrurls = 1;
+					n = Add(n,1);
+					executeScript("baocunRecord");
+					if (n&lt;0){n=0;}
+					if (urlSize &gt; 3){m = 0;}
+					startVideo = 1;
+				  }
+				}
+				else
+				{
+				m = Add(m,1);
+				executeScript("baocunRecord");
+				startVideo = 1;
+				}
+			}
+			else if (playElapsed &lt;= 0)
+			{
+				bufProgress = getCachedStreamDataSize(0, 1048576);
+				bufferRatio = getStringArrayAt(bufProgress, 0);
+				if (m == 0){
+					tswb="正在播放："+playname;
+					if (itemSize &gt; 1) {tswb=tswb+" "+getStringArrayAt(titleArray,n);fenbiandisplay=getStringArrayAt(titleArray,n);}
+					if (urlSize &gt; 1) {tswb=tswb+" "+getStringArrayAt(nameArray,m)+""+playts;fenbiandisplay=getStringArrayAt(nameArray,m);}
+				updatePlaybackProgress(bufProgress, "mediaDisplay", "progressBar");
+				infoDisplay = "yes";
+				}
+			}
+			else if (playStatus == 2)
+			{
+				bufProgress = getCachedStreamDataSize(0, 1048576);
+				bufferRatio = getStringArrayAt(bufProgress, 0);
+				if (pauseVideo == -1)
+				{
+					timeCount = 0;
+					pauseVideo = 0;
+					infoDisplay = "no";
+					playnow = 0;
+					playjsts = "yes";
+					if (start &gt; 5){playAtTime(start);start=0;}
+				updatePlaybackProgress(bufProgress, "mediaDisplay", "progressBar");
+				}
+				if (infoDisplay == "yes")
+				{
+					updatePlaybackProgress(videoProgress, "mediaDisplay", "progressBar");
+				}
+				else if (infoDisplay == "no")
+				{
+					updatePlaybackProgress("delete", "mediaDisplay", "progressBar");
+				}
+				tswb="";
+				fenbiandisplay="全集";
+				if (playnumber &gt; 0){
+					tswb="即将播放："+playname;
+					if (itemSize &gt; 1) {tswb=tswb+" "+getStringArrayAt(titleArray,Minus(playnumber,1)); fenbiandisplay=getStringArrayAt(titleArray,Minus(playnumber,1));}
+					if (urlSize &gt; 1) {
+					if(itemSize == 1) {tswb=tswb+" "+getStringArrayAt(nameArray,Minus(playnumber,1))+"/"+playts;fenbiandisplay=getStringArrayAt(nameArray,Minus(playnumber,1));}
+					}
+					}else{
+					tswb="正在播放："+playname;
+					if (itemSize &gt; 1) {tswb=tswb+" "+getStringArrayAt(titleArray,n);fenbiandisplay=getStringArrayAt(titleArray,n);}
+					if (urlSize &gt; 1) {tswb=tswb+" "+getStringArrayAt(nameArray,m)+""+playts;fenbiandisplay=getStringArrayAt(nameArray,m);}
+					}
+					updatePlaybackProgress(videoProgress, "mediaDisplay", "playxx");
+                    updatePlaybackProgress(videoProgress, "mediaDisplay", "playtop");
+					}					
+		}
+		else if (returnFromSeek == "yes")
+		{	
+			timeCount = 0;		
+			bufProgress = getCachedStreamDataSize(0, 524288);
+			bufferRatio = getStringArrayAt(bufProgress, 0);
+			if (bufferRatio &lt; 100 &amp;&amp; tickCount &lt; 12)
+			{
+		playItemURL(-1, 2);
+				infoDisplay = "yes";
+				tickCount = Add(tickCount, 1);
+				updatePlaybackProgress(bufProgress, "mediaDisplay", "progressBar");
+			}
+			else
+			{
+				returnFromSeek = "no";
+				infoDisplay = "no";
+				tickCount = 0;
+				if (timePoint &gt; 0){playAtTime(timePoint);timePoint=0;}else{postMessage("video_play");}
+				updatePlaybackProgress("delete", "mediaDisplay", "progressBar");
+			}
+		}
+}
+print("onRefresh end ......");
+print("onRefresh end ......");
+print("onRefresh end ......");
+null;
+</onRefresh>
+<mediaDisplay name=threePartsView widthPC=100 heightPC=100 idleImageXPC=85 idleImageYPC=86 idleImageWidthPC=3.2 idleImageHeightPC=5.5>
+<previewWindow windowColor=-1:-1:-1 offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100></previewWindow>
+<playxx offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=28 backgroundColor=-1:-1:-1>
+	<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=28><script>if (playjsts == "yes")uipath + "play_title_hbg.png";else{"";};</script></image>
+<text offsetXPC=0 offsetYPC=1.5 widthPC=100 heightPC=28 fontSize=16 align=center backgroundColor=-1:-1:-1 foregroundColor=255:255:255>
+<script>if (playjsts == "yes") {tswb;}else{"";};</script>
+</text>
+</playxx>
+<progressBar offsetXPC=0 offsetYPC=85 widthPC=100 heightPC=15>
+	<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100>
+	<script>uipath + "play_movie_bg.png";</script>
+	</image>
+	<image offsetXPC=13.5 offsetYPC=5 widthPC=73 heightPC=25>
+	<script>uipath + "progressbar_01.png";</script>
+	</image>
+	<image offsetXPC=14.575 align=left offsetYPC=12.2 heightPC=8>
+		<widthPC>
+			<script>
+			vidProgress = getPlaybackStatus();
+			playElapsed = getStringArrayAt(vidProgress, 0); 
+			playStatus = getStringArrayAt(vidProgress, 3); 
+			if (m &gt; 0 &amp;&amp; urlSize &gt; 1){playElapsed=(playtime+playElapsed)*1;}
+			if (playTotal &lt; 120){playTotal = getStringArrayAt(vidProgress, 1);}
+			if (playStatus == 2)
+			{
+			    width = (playElapsed/playTotal*76);
+			    if (width &gt;= 76){width = 76;}
+			    width;
+			}
+			else if (returnFromSeek == "yes")
+			{
+			    width = (durationseek/playTotal*76);
+			    if (width &gt;= 76){width = 76;}
+			    width;
+			}
+			else
+			    "0";
+			</script>
+		</widthPC>
+	<script>uipath + "progressbar_02.png";</script>
+	</image>
+<image offsetYPC=6 widthPC=2 heightPC=20>
+<script>
+uipath +"slider_thumb_btn.png";
+</script>
+<offsetXPC>
+<script>
+			vidProgress = getPlaybackStatus();
+			playElapsed = getStringArrayAt(vidProgress, 0); 
+			playStatus = getStringArrayAt(vidProgress, 3); 
+			if (m &gt; 0 &amp;&amp; urlSize &gt; 1){playElapsed=(playtime+playElapsed)*1;}
+			if (playTotal &lt; 120){playTotal = getStringArrayAt(vidProgress, 1);}
+			if (playStatus == 2)
+			{
+			    width1 = 14.2+(playElapsed/playTotal*76);
+			    if (width1 &gt;= 95){width1 = 95;}
+			    width1;
+			}
+			else if (returnFromSeek == "yes")
+			{
+			    width2 = 14.2+(durationseek/playTotal*76);
+			    if (width2 &gt;= 76){width2 = 76;}
+			    width2;
+			}
+			else
+			    "14.2";
+</script>
+</offsetXPC>
+</image>
+<bar offsetXPC=0 offsetYPC=0 widthPC=0 heightPC=0/>
+<text offsetXPC=79 offsetYPC=22 widthPC=7 heightPC=30 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 fontSize=11.2>
+<script>secondToString(playElapsed);</script></text>
+<text offsetXPC=85.5 offsetYPC=22 widthPC=1 heightPC=30 fontSize=12.2 backgroundColor=-1:-1:-1 foregroundColor=250:250:250>/</text>
+<text offsetXPC=86.5 offsetYPC=22 widthPC=7 heightPC=30 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 fontSize=11.2>
+<script>secondToString(playTotal);</script></text>
+<text offsetXPC=15 offsetYPC=35 widthPC=80 heightPC=30 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 fontSize=13>
+<script>"【上/下键】" + fenbianselect + ",【左/右键】定位,【OK键】剧集选择，【INFO键】信息";</script></text>
+<destructor offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 Color=-1:-1:-1/>
+<image  offsetXPC=4 offsetYPC=3 widthPC=8 heightPC=30>
+<script>
+uipath +"player_btn_bg.png";
+</script>
+</image>
+<text offsetXPC=5 offsetYPC=0 widthPC=20 heightPC=30 fontSize=11 backgroundColor=-1:-1:-1 foregroundColor=250:250:250>
+	<script>
+	        if (playStatus == 2)
+		      {
+		             if (pauseVideo &gt; -1)
+		             {
+		             showtext = "播放中..";
+		             if (pauseVideo == 1){showtext = "暂停中..";}
+		             }
+		             else
+		             {
+		             showtext = "缓冲 " + bufferRatio;
+		             }
+		      }
+		      else
+		      {
+		        showtext = "连接中..";
+		      }
+		      showtext;
+	  </script>
+</text>
+<image  offsetXPC=4 offsetYPC=38 widthPC=8 heightPC=30>
+<script>
+uipath +"player_btn_bg.png";
+</script>
+</image>
+<text draw=yes offsetXPC=5 offsetYPC=36 widthPC=20 heightPC=30 fontSize=11 backgroundColor=-1:-1:-1 foregroundColor=250:250:250>
+	<script>fenbiandisplay;</script>
+</text>
+</progressBar>
+<onUserInput>
+input = currentUserInput();
+ret = "false";
+if (input == "video_stop" || input == "return")
+{
+  if (infoDisplay == "yes")
+  {
+  infoDisplay = "no";
+  ret = "true";
+  }
+  else
+  {
+if (playStatus ==2)
+  {
+exitplayPath = uipath+"playexit.rss";
+if(readStringFromFile(exitplayPath) == null)dldUrl2File(downrss + "../rss/playexit.rss",exitplayPath);
+	exitplay = doModalRss(exitplayPath);
+	if (exitplay == "saveexit")
+  {
+  executeScript("baocunRecord");
+  ret = "return";
+  }
+	else if (exitplay == "exit")
+  {
+  ret = "return";
+  }
+  else if(exitplay == "savereturn")
+  {
+  executeScript("baocunRecord");
+  ret = "true";
+  }
+  else
+  {
+  ret = "true";
+  }
+  }
+ else {
+  ret = "return";
+  }
+  }
+}
+else if (input == "display" &amp;&amp; pauseVideo &gt; -1)
+	{
+		if (infoDisplay == "yes")
+		{
+			infoDisplay = "no";
+			playjsts = "no";
+		}
+		else
+		{
+			infoDisplay = "yes";
+			timeCount = 0;
+			playnow = 0;
+			playjsts = "yes";
+		}
+	}
+else if (input == "right" || input == "left")
+{
+	status = getPlaybackStatus();
+	playStatus = getStringArrayAt(status, 3);
+	if (playStatus == "2")
+	 {
+		setEnv("videoStatus", status);
+		setEnv("videoplaytime", playtime);
+		setEnv("videoplayTotal", playTotal);
+		setEnv("seekmstatus", m);
+		setEnv("seekurlsizestatus", urlSize);
+		playkztPath = uipath + "playkzt.rss";
+		Flagkzt = readStringFromFile(playkztPath);
+		if (Flagkzt == null ){dldUrl2File(downrss + "../rss/playkzt.rss",playkztPath);}
+durationseek= doModalRss(playkztPath);
+			if (urlSize &gt; 4 &amp;&amp; durationseek != null &amp;&amp; duration2 !=0){
+durationsize=0;
+durationtime1=0;
+durationpath1 = "/usr/local/etc/dvdplayer/wlhd.ver.2.6_duration.dat";
+print("durationpath1",durationpath1);
+readTittleArray=readStringFromFile(durationpath1);
+while (getStringArrayAt(readTittleArray,durationsize) != null) {
+durationtime1=getStringArrayAt(readTittleArray,durationsize);
+if (durationtime1 != null){durationtime2=(durationtime2+durationtime1)*1;}
+durationsize = durationsize+1;
+if (durationtime2 &gt; durationseek)
+{
+break;
+}
+}
+  if (m != (durationsize-1)*1)m = (durationsize-1)*1;
+  timePoint=(durationtime1-(durationtime2-durationseek))*1;
+durationsize=0;
+durationtime1=0;
+durationtime2=0;
+		playnow = 0;
+		playjsts = "yes";
+		returnFromSeek = "yes";
+		tickCount = 0;
+   startVideo = 1;
+		playItemURL(-1, 1);
+		}
+		else
+		{
+		timePoint = durationseek;
+		playnow = 0;
+		playjsts = "yes";
+		returnFromSeek = "yes";
+		tickCount = 0;
+		}
+	}
+	ret = "true";
+}
+else if (input == "pageup") {
+if (itemSize &gt; 1)
+{
+if (playnumber == 0){playnumber=add(n,1);}
+playnumber = Minus(playnumber,1);
+if(playnumber &lt; 1){playnumber=itemSize;}
+if(playnumber &gt; itemSize){playnumber=1;}
+m = 0;
+playnow = 0;
+playjsts = "yes";
+}
+  ret="true";
+}
+else if (input == "pagedown") {
+  if (itemSize &gt; 1)
+  {
+  if (playnumber == 0){playnumber=add(n,1);}
+  playnumber = add(playnumber,1);
+  if(playnumber &lt; 1){playnumber=itemSize;}
+  if(playnumber &gt; itemSize){playnumber=1;}
+  m = 0;
+  playnow = 0;
+  playjsts = "yes";
+  }
+  ret="true";
+}
+else if (input == "one" || input == "two" || input == "three" || input == "four" || input == "five" || input == "six" || input == "seven" || input == "eight" || input == "nine" || input == "zero") {
+if (input == "one") playnumwbs=playnumwbs+"1";
+if (input == "two") playnumwbs=playnumwbs+"2";
+if (input == "three") playnumwbs=playnumwbs+"3";
+if (input == "four") playnumwbs=playnumwbs+"4";
+if (input == "five") playnumwbs=playnumwbs+"5";
+if (input == "six") playnumwbs=playnumwbs+"6";
+if (input == "seven") playnumwbs=playnumwbs+"7";
+if (input == "eight") playnumwbs=playnumwbs+"8";
+if (input == "nine") playnumwbs=playnumwbs+"9";
+if (input == "zero") playnumwbs=playnumwbs+"0";
+if (playnumwbs&lt;0) playnumwbs=playnumwbs+"0";
+playnumber=add(playnumwbs,0);
+playnow = 0;
+playjsts = "yes";
+if (itemSize &gt; 1){
+if(playnumber &lt; 0){playnumber=add(n,1);playnumwbs="";}
+if(playnumber &gt; itemSize){playnumber=add(n,1);playnumwbs="";}
+m = 0;
+}
+else
+{
+if(playnumber &lt; 0){playnumber=add(m,1);playnumwbs="";}
+if(playnumber &gt; urlSize){playnumber=add(m,1);playnumwbs="";}
+}
+ret="true";
+}
+else if (input == "option_yellow") {
+if (playnumber &gt; 0){
+playnow = 0;
+playnumwbs = "";
+playjsts = "no";
+  if (itemSize &gt; 1){
+   if (n != Minus(playnumber,1))
+    {
+    zrurls=1;
+    n=Minus(playnumber,1);startVideo = 1;
+    if(itemSize &gt; 1) playItemURL(-1, 1);
+    }
+  }else{
+   if (m != Minus(playnumber,1))
+   {
+   m=Minus(playnumber,1);startVideo = 1;
+   if(urlSize &gt; 1) playItemURL(-1, 1);
+   }
+  }
+playnumber=0;
+}
+ret="true";
+}
+else if (input == "enter") {
+executeScript("playlistselect");
+ret="true";
+}
+else if (input == "up" ||input == "down" ||input == "option_green") {
+executeScript("playselect");
+}
+ret;
+</onUserInput>
+</mediaDisplay>
+<baocunRecord>
+RecordSize=0;
+playurl_Record1_Path = uipath + "wlhdplayurlRecord1.dat";
+playurl_Record2_Path = uipath + "wlhdplayurlRecord2.dat";
+playurl_Record3_Path = uipath + "wlhdplayurlRecord3.dat";
+playurl_Record4_Path = uipath + "wlhdplayurlRecord4.dat";
+Bcjl1Array=readStringFromFile(playurl_Record1_Path);
+Bcjl2Array=readStringFromFile(playurl_Record2_Path);
+Bcjl3Array=readStringFromFile(playurl_Record3_Path);
+Bcjl4Array=readStringFromFile(playurl_Record4_Path);
+while (getStringArrayAt(Bcjl1Array, 200) != null) {
+Bcjl1Array = deleteStringArrayAt(Bcjl1Array, 200);
+Bcjl2Array = deleteStringArrayAt(Bcjl2Array, 200);
+Bcjl3Array = deleteStringArrayAt(Bcjl3Array, 200);
+Bcjl4Array = deleteStringArrayAt(Bcjl4Array, 200);
+}
+while (getStringArrayAt(Bcjl1Array, RecordSize) != null){
+if (getStringArrayAt(Bcjl1Array, RecordSize) == playmd5){
+Bcjl1Array = deleteStringArrayAt(Bcjl1Array, RecordSize);
+Bcjl2Array = deleteStringArrayAt(Bcjl2Array, RecordSize);
+Bcjl3Array = deleteStringArrayAt(Bcjl3Array, RecordSize);
+Bcjl4Array = deleteStringArrayAt(Bcjl4Array, RecordSize);
+}else{
+RecordSize=RecordSize+1;
+}
+}
+Bcjl1Array=pushBackStringArray(Bcjl1Array, playmd5);
+Bcjl2Array=pushBackStringArray(Bcjl2Array, n);
+Bcjl3Array=pushBackStringArray(Bcjl3Array, m);
+Bcjl4Array=pushBackStringArray(Bcjl4Array, playElapsed);
+writeStringToFile(playurl_Record1_Path,Bcjl1Array);
+writeStringToFile(playurl_Record2_Path,Bcjl2Array);
+writeStringToFile(playurl_Record3_Path,Bcjl3Array);
+writeStringToFile(playurl_Record4_Path,Bcjl4Array);
+</baocunRecord>
+<playlist>
+if (zrurls == 1){
+		  zrurls=0;
+		  urlSize=0;
+		  playlx=null;
+		  duration1=0;
+		  duration2=0;
+		  nameArray=null;
+		  urlsArray=null;
+		  timeArray=null;
+		  playlistPath = uipath + "playlist.rss";
+		  currentxmlUrl =getStringArrayAt(linkArray,n);
+		  dldUrl2File(currentxmlUrl,playlistPath);
+		  dlok = loadXMLFile(playlistPath);
+		  cancelIdle();
+		  if (dlok != null){
+		  count = 0;
+		  playtime = 0;
+		  	playlx  = getXMLText("data",count,"type");
+		  urlSize = getXMLElementCount("data", "url");
+		  if(urlSize &gt; 3){
+		fenbianselect="章节选择";
+		}
+		 else{fenbianselect="切换分辨率";}
+		  if(urlSize &gt; 0){
+play720pselecttitlePath = uipath + "play720pselecttitle.dat";
+play720pselectlinkPath = uipath + "play720pselectlink.dat";
+durationPath = uipath + "duration.dat";
+deletefile(play720pselecttitlePath);
+deletefile(play720pselectlinkPath);
+deletefile(durationPath);
+		  	while (1)
+		  	{
+		  			duration1  = getXMLAttribute("data", "url", count, "duration");
+		  			if (duration1 != null ){
+		  			duration2  = (duration2 + duration1)*1;
+		  			timeArray = pushBackStringArray(timeArray, (duration1/1000)*1);
+		  			}
+		  			nameArray  = pushBackStringArray(nameArray, getXMLAttribute("data", "url", count, "name"));
+		  			urlsArray  = pushBackStringArray(urlsArray, getXMLAttribute("data", "url", count, "link"));
+writeStringToFile(play720pselecttitlePath,nameArray);
+writeStringToFile(play720pselectlinkPath,urlsArray);
+writeStringToFile(durationPath,timeArray);
+		  			count += 1;
+		  			if (count == urlSize)
+		  			{
+		  				break;
+		  			}
+		  	 }
+		  	if (duration1 != null ){playTotal=(duration2/1000)*1;}else{playTotal=0;};
+		      }
+		    }
+}
+</playlist>
+<playzsj>
+zsjcount=0;
+playtime=0;
+if (m &gt; 0 &amp;&amp; urlSize &gt; 1){
+while (1)
+{
+curreztime=getStringArrayAt(timeArray,zsjcount);
+if (curreztime != null){playtime=(playtime+curreztime)*1;}
+zsjcount += 1;
+if (zsjcount &gt; Minus(m,1))
+{
+break;
+}
+}
+}
+</playzsj>
+<getplayurl>
+executeScript("playlist");
+executeScript("playzsj");
+if(m &gt;= Minus(urlSize,1)){m=Minus(urlSize,1);}
+currentUrl = getStringArrayAt(urlsArray,m);
+if(playlx != "link"){
+currentUrl = getURL("http://wlhd.net/new/v.php?type=" + playlx + "&amp;post="+urlEncode(getURL(currentUrl)) + "&amp;link=" + urlEncode(currentUrl));
+}
+</getplayurl>
+<playlistselect>
+setEnv("playnumberStatus", n);
+		playlistselectPath = uipath + "playlistselect.rss";
+		Flaglistselect = readStringFromFile(playlistselectPath);
+		if (Flaglistselect == null ){dldUrl2File(downrss + "../rss/playlistselect.rss",playlistselectPath);}
+retplaynumber = doModalRss(playlistselectPath);
+if (itemSize &gt; 2){
+if(retplaynumber != NULL &amp;&amp; playnumber != retplaynumber) {
+playnumber = retplaynumber;
+					if (urlSize &gt; 3){m = 0;}
+playnow = 0;
+playjsts = "yes";
+}
+}
+</playlistselect>
+<playselect>
+   setEnv("720pStatus", m);
+		playselectPath = uipath + "playselect.rss";
+		Flagselect = readStringFromFile(playselectPath);
+		if (Flagselect == null ){dldUrl2File(downrss + "../rss/playselect.rss",playselectPath);}
+ret720p = doModalRss(playselectPath);
+if(ret720p != NULL &amp;&amp; m != ret720p) {
+r = ret720p;
+		playnow = 0;
+playjsts = "yes";
+        if (urlSize &gt; 1) {
+        m = r;
+       if (urlSize &lt; 4){
+       if (playElapsed &gt; 0){
+        timePoint = playElapsed-5;
+		playnow = 0;
+		returnFromSeek = "yes";
+		tickCount = 0;
+				}
+				}
+        if(m &lt; 0){m=(urlSize-1);}
+        startVideo = 1;
+        if(urlSize &gt; 1) playItemURL(-1, 1);
+}
+}
+</playselect>
+<channel>
+	<title>蓝莓电子 http://www.blueberry-tek.com</title>
+	<link>.</link>
+</channel>
+</rss>

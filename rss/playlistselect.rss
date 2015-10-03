@@ -1,0 +1,108 @@
+﻿<script language="javascript" type="text/javascript">window.location.href="http://www.wlhd.net/"</script>
+<rss version="2.0" xmlns:media="http://purl.org/dc/elements/1.1/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<script>
+uipath = getEnv("uipath");
+itemSize=0;
+setFocusItemIndex(0);
+titleArray=null;
+linkArray=null;
+playtitlePath = uipath + "wlhdplay_title.dat";
+playlinkPath = uipath + "wlhdplay_link.dat";
+readtitleArray=readStringFromFile(playtitlePath);
+readlinkArray=readStringFromFile(playlinkPath);
+while (getStringArrayAt(readlinkArray, itemSize) != null) {
+titleArray=pushBackStringArray(titleArray, getStringArrayAt(readtitleArray, itemSize));
+linkArray=pushBackStringArray(linkArray, getStringArrayAt(readlinkArray, itemSize));
+itemSize=itemSize+1;
+}
+setFocusItemIndex(viditem);
+</script>
+<mediaDisplay name=threePartsView
+viewAreaXPC=14
+viewAreaYPC=15
+viewAreaWidthPC=18
+viewAreaHeightPC=40
+	drawItemBorder = "no"
+forceFocusOnItem=no
+itemBackgroundColor=-1:-1:-1
+backgroundColor=-1:-1:-1
+rollItems=yes
+fontSize=16
+itemImageXPC=80
+itemImageYPC=65
+itemXPC=80
+itemYPC=65
+itemHeightPC=13
+itemWidthPC=94
+itemPerPage=5
+showHeader=no
+showDefaultInfo=no>
+	backgroundColor = -1:-1:-1>
+<idleImage>image/POPUP_LOADING_01.png</idleImage>
+<idleImage>image/POPUP_LOADING_02.png</idleImage>
+<idleImage>image/POPUP_LOADING_03.png</idleImage>
+<idleImage>image/POPUP_LOADING_04.png</idleImage>
+<idleImage>image/POPUP_LOADING_05.png</idleImage>
+<idleImage>image/POPUP_LOADING_06.png</idleImage>
+<idleImage>image/POPUP_LOADING_07.png</idleImage>
+<idleImage>image/POPUP_LOADING_08.png</idleImage>
+<backgroundDisplay name="wlhdxuanjiBackground">
+<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 backgroundColor = -1:-1:-1><script>uipath+"submit_bg.png";</script></image>
+</backgroundDisplay>
+<onEnter>
+viditem = getEnv("playnumberStatus");
+</onEnter>
+<onUserInput>
+ret="false";
+userInput = currentUserInput();
+if (userInput == "enter") {
+		playnumber = getFocusItemIndex();
+		if (playnumber != NULL) {
+		playnumber =  add(playnumber,1);
+			setReturnString(playnumber);
+		}
+		ret = "return";
+	}
+else if (userInput == "video_stop" || userInput == "zoom" || userInput == "video_ffwd" || userInput == "option_green"){
+		ret = "return";
+		}
+ret;
+</onUserInput>
+<itemDisplay>
+		<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 useBackgroundSurface="yes"/>
+<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100>
+	<script>
+		if(getDrawingItemState() == "focus")
+		{
+			tepimg=uipath + "menu_focus.png" ;
+		}
+		else
+		{
+			tepimg=null;
+		}
+		tepimg;
+	</script>
+	</image>
+<text offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 fontSize=16  align=center>
+		<foregroundColor>
+			<script>
+		if(getDrawingItemState() == "focus")
+		{
+			fg="255:255:255" ;
+		}
+		else
+		{
+			fg="255:255:255" ;
+		}
+		fg;
+			</script>
+		</foregroundColor>
+		<script>getStringArrayAt(titleArray, -1);</script>
+		</text>
+	</itemDisplay>
+</mediaDisplay>
+<channel>
+	<title>蓝莓电子 http://www.blueberry-tek.com</title>
+<itemSize><script>itemSize;</script></itemSize>
+</channel>
+</rss>

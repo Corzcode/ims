@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<filmclasslist> 
+	<filmclass filmclassname="电影" filmclassindexname="<?php echo $videos;?>" contenturl="<?php echo $site_url;?>/vod_xml.php" >
+	<?php foreach($typelist as $id=>$title): ?>
+		<filmclass filmclassname="<?php echo $title;?>" filmclassindexname="<?php echo $videos;?>" contenturl="<?php echo $site_url;?>/video_list_xml.php?video=<?php echo $videoid;?>&amp;type=<?php echo $id;?>"/>
+	<?php endforeach; ?>
+	</filmclass>
+</filmclasslist>

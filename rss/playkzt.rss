@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<script>
+uipath = getEnv("uipath");
+</script>
+<onEnter>
+vidProgress = getEnv("videoStatus");
+seekplaytime = getEnv("videoplaytime");
+total = getEnv("videoplayTotal");
+m = getEnv("seekmstatus");
+urlSize = getEnv("seekurlsizestatus");
+elapsed = getStringArrayAt(vidProgress, 0);
+	Status = getStringArrayAt(vidProgress, 3);
+			if (m &gt; 0 &amp;&amp; urlSize &gt; 4){elapsed=(seekplaytime+elapsed)*1;}
+			if (total &lt; 120){total = getStringArrayAt(vidProgress, 1);}
+if (total &lt; 10)
+{
+	step_left = 10;
+	step_right = 30;
+}
+else
+{
+	step_left = 10;
+	step_right = 30;
+}
+time2 = secondToString(total);
+redrawDisplay();
+</onEnter>
+<mediaDisplay
+	name=photoView
+	viewAreaXPC=0
+	viewAreaYPC=85
+	viewAreaWidthPC=100
+	viewAreaHeightPC=15
+	topArea.heightPC=0
+	topArea.yPC=100
+	bottomYPC=100
+	drawItemBorder=no
+	showHeader=no
+	showDefaultInfo=no
+	backgroundColor=-1:-1:-1
+	itemBackgroundColor =-1:-1:-1
+	itemGrid.elementBackground = -1:-1:-1
+>
+<backgroundDisplay name=bestv_seek_popup_bg>
+	<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100>
+	<script>
+	uipath + "play_movie_bg.png";
+	</script>
+	</image>
+</backgroundDisplay>
+<text offsetXPC=20 offsetYPC=35 widthPC=80 heightPC=30 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 fontSize=13>
+<script>"【左/右键】拉动时间条,【OK键】确定,【RETURN键】返回";</script></text>
+<image  offsetXPC=4 offsetYPC=3 widthPC=8 heightPC=30>
+<script>
+uipath +"player_btn_bg.png";
+</script>
+</image>
+<text offsetXPC=5 offsetYPC=0 widthPC=20 heightPC=30 fontSize=11 backgroundColor=-1:-1:-1 foregroundColor=250:250:250>
+	<script>"定位中..";</script>
+</text>
+<image redraw=yes offsetXPC=13.5 offsetYPC=5 widthPC=73 heightPC=25>
+<script>
+uipath + "progressbar_01.png";
+</script>
+</image>
+<image redraw=yes offsetXPC=14.575 offsetYPC=12.2 widthPC=69.75 heightPC=8>
+<script>
+uipath + "progressbar_02.png";
+</script>
+<widthPC>
+<script>
+(elapsed/total)*69.75;
+</script>
+</widthPC>
+</image>
+<image redraw=yes offsetXPC=89.75 offsetYPC=6 widthPC=2 heightPC=20>
+<script>
+uipath +"slider_thumb_btn.png";
+</script>
+<offsetXPC>
+<script>
+14.2+(elapsed/total)*69.75;
+</script>
+</offsetXPC>
+</image>
+<text offsetXPC=79 offsetYPC=22 widthPC=7 heightPC=30 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 fontSize=11.2>
+<script>
+time1 = secondToString(elapsed);
+time1;
+</script>
+</text>
+<text offsetXPC=85.5 offsetYPC=22 widthPC=1 heightPC=30 fontSize=12.2 backgroundColor=-1:-1:-1 foregroundColor=250:250:250>/</text>
+<text offsetXPC=86.5 offsetYPC=22 widthPC=7 heightPC=30 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 fontSize=11.2>
+<script>
+time2;
+</script>
+</text>
+<onUserInput>
+ret = "false";
+input = currentUserInput();
+if (input == "right")
+{
+	elapsed = Add(elapsed, step_right);
+	if (elapsed &gt; total)
+	{
+		elapsed = total;
+	}
+	redrawDisplay("widget");
+	ret = "true";
+}
+else if (input == "left")
+{
+	elapsed = Minus(elapsed, step_left);
+	if (elapsed &lt; 0)
+	{
+		elapsed = 0;
+	}
+	redrawDisplay("widget");
+	ret = "true";
+}
+else if (input == "enter" || input == "video_play")
+{
+	setReturnString(elapsed);
+	redrawDisplay("yes");
+	ret = "return";
+}
+else if (input == "video_completed" || input == "video_stop" || input == "return")
+{
+	redrawDisplay("no");
+	ret = "return";
+}
+ret;
+</onUserInput>
+</mediaDisplay>
+</rss>

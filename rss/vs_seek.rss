@@ -1,0 +1,110 @@
+﻿<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<script>
+	tempdir = "/usr/local/etc/dvdplayer/vst_";
+	favdir = "/usr/local/etc/dvdplayer/myfav_";
+	
+	uipath = getEnv("uipath");
+	tempdir = uipath;
+	favdir = uipath + "fav";
+	
+	if (UI_ID == null)
+	{
+		UI_ID = getEnv("BGUI_ID");
+		if (UI_ID == null) UI_ID = "";
+	}
+</script>
+<onEnter>
+	playdate = 0;
+	elapsed = getEnv("video_playTime");
+	total = getEnv("video_totalTime");
+	if (totalTime &lt; 30)
+	{
+		step_left = 1;
+		step_right = 1;
+	}
+	else
+	{
+		step_left = 15;
+		step_right = 30;
+	}
+	time2 = secondToString(total);
+	setRefreshTime(1000);
+	redrawDisplay();
+</onEnter>
+
+<onRefresh>
+	if (playdate &gt; 15) postMessage("return");
+	playdate += 1;
+</onRefresh>
+
+<mediaDisplay
+	name=photoView
+	viewAreaXPC=20
+	viewAreaYPC=65
+	viewAreaWidthPC=60
+	viewAreaHeightPC=10
+	topArea.heightPC=0
+	topArea.yPC=100
+	bottomYPC=100
+	drawItemBorder=no
+	showHeader=no
+	showDefaultInfo=no
+	backgroundColor=-1:-1:-1
+	itemBackgroundColor =-1:-1:-1
+	itemGrid.elementBackground = -1:-1:-1>
+	<backgroundDisplay name="vst_seekbg_2012110115435">
+		<text offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100 backgroundColor=68:68:68/>
+		<image offsetXPC=0 offsetYPC=0 widthPC=100 heightPC=100><script>tempdir + "play_bg.png";</script></image>
+	</backgroundDisplay>
+	<image redraw=yes offsetXPC=5 offsetYPC=23 widthPC=90 heightPC=20><script>tempdir + "processbar_gray.png";</script></image>
+
+	<image redraw=yes offsetXPC=5 offsetYPC=23 heightPC=20>
+	<script>tempdir + "processbar_blue.png";</script>
+	<widthPC><script>(elapsed/total)*90;</script></widthPC>
+	</image>
+
+	<image redraw=yes offsetYPC=12 widthPC=5 heightPC=40>
+	<offsetXPC><script>((elapsed/total)*90+3)*1;</script></offsetXPC>
+	<script>tempdir + "process_focus_ball.png";</script>
+	</image>
+	<text offsetXPC=7 offsetYPC=60 heightPC=22 backgroundColor=-1:-1:-1 foregroundColor=250:250:250 useBackgroundSurface=yes fontSize=11.2 widthPC=90 align=right>
+	<script>secondToString(elapsed) + "/"+time2;</script>
+	</text>
+	<onUserInput>
+		playdate = 0;
+		ret = "false";
+		input = currentUserInput();
+		print("user input is : ", input);
+		if (input == "right")
+		{
+			elapsed = Add(elapsed, step_right);
+			if (elapsed &gt; total) elapsed = Minus(total,10);
+			redrawDisplay("widget");
+			ret = "true";
+		}
+		else if (input == "left")
+		{
+			elapsed = Minus(elapsed, step_left);
+			if (elapsed &lt; 0) elapsed = 0;
+			redrawDisplay("widget");
+			ret = "true";
+		}
+		else if (input == "enter" || input == "video_play")
+		{
+			setReturnString(elapsed);
+			redrawDisplay("no");
+			ret = "return";
+		}
+		else if (input == "video_search") ret = "return";
+		ret;
+	</onUserInput>
+</mediaDisplay>
+<channel>
+<itemSize>0</itemSize>
+</channel>
+
+<onExit>
+	setRefreshTime(-1);
+	redrawDisplay("yes");
+</onExit>
+</rss>
